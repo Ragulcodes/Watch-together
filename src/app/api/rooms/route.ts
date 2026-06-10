@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { rateLimit, maybeCleanup } from "@/lib/rateLimit";
 
 const slugify = (s: string) =>
   s
@@ -46,6 +47,15 @@ export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  // Max 5 room creations / minute per user.
+  maybeCleanup(60_000);
+  const limit = rateLimit(`room-create:${session.user.id}`, 5, 60_000);
+  if (!limit.ok) {
+    return NextResponse.json(
+      { error: "Too many rooms created. Try again shortly." },
+      { status: 429, headers: { "Retry-After": String(Math.ceil(limit.retryAfterMs / 1000)) } },
+    );
   }
   const json = await req.json().catch(() => null);
   const parsed = createSchema.safeParse(json);

@@ -65,7 +65,12 @@ export function RoomStage(props: {
           </div>
           {/* Participants strip */}
           <div className="bg-panel border-t border-border">
-            <VideoStage />
+            <VideoStage
+              isHost={isHost}
+              roomSlug={props.roomSlug}
+              ownerId={props.ownerId}
+              currentUserId={props.currentUserId}
+            />
           </div>
         </div>
       </div>

@@ -1,4 +1,19 @@
-import { AccessToken } from "livekit-server-sdk";
+import { AccessToken, RoomServiceClient } from "livekit-server-sdk";
+
+/**
+ * Server-side admin client for moderation (kick / mute). RoomServiceClient
+ * speaks HTTP, so convert the ws(s):// signalling URL to http(s)://.
+ */
+export function getRoomServiceClient() {
+  const apiKey = process.env.LIVEKIT_API_KEY;
+  const apiSecret = process.env.LIVEKIT_API_SECRET;
+  const wsUrl = process.env.LIVEKIT_URL;
+  if (!apiKey || !apiSecret || !wsUrl) {
+    throw new Error("LiveKit credentials are not configured");
+  }
+  const httpUrl = wsUrl.replace(/^ws:\/\//, "http://").replace(/^wss:\/\//, "https://");
+  return new RoomServiceClient(httpUrl, apiKey, apiSecret);
+}
 
 export async function mintLiveKitToken(opts: {
   roomName: string;

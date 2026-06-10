@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { rateLimit, maybeCleanup } from "@/lib/rateLimit";
 
 export async function GET(
   _req: Request,
@@ -31,6 +32,15 @@ export async function POST(
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  // Max 10 messages / 10s per user.
+  maybeCleanup(10_000);
+  const limit = rateLimit(`chat:${session.user.id}`, 10, 10_000);
+  if (!limit.ok) {
+    return NextResponse.json(
+      { error: "Slow down a little." },
+      { status: 429, headers: { "Retry-After": String(Math.ceil(limit.retryAfterMs / 1000)) } },
+    );
   }
   const room = await prisma.room.findFirst({
     where: { OR: [{ id: params.roomId }, { slug: params.roomId }] },
