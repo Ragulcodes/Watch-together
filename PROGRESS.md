@@ -13,7 +13,7 @@ Self-paced build loop. Each iteration: implement one item → `next build` green
 
 ## Roadmap (in order)
 1. [x] Private rooms + passcodes (join gate UI/API) — verified: gate→reject→accept→token, hidden from list
-2. [ ] Reactions + presence polish (emoji reactions, speaking glow, "now watching")
+2. [x] Reactions + presence polish — floating emoji reactions (LiveKit data channel), speaking glow ring on tiles
 3. [ ] Moderation: host kick/mute, chat rate limit, room-create rate limit
 4. [ ] Resilient sync: host migration, catch-up for late/behind viewers
 5. [ ] Mobile-responsive layout + PWA install

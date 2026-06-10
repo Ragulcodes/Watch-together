@@ -7,6 +7,7 @@ import { SyncedPlayer } from "./SyncedPlayer";
 import { ChatPanel } from "./ChatPanel";
 import { ScreenShareView } from "./ScreenShareView";
 import { DeviceSettings } from "./DeviceSettings";
+import { Reactions } from "./Reactions";
 import { Crown, Users } from "lucide-react";
 
 export function RoomStage(props: {
@@ -60,6 +61,7 @@ export function RoomStage(props: {
               currentUserId={props.currentUserId}
               initialMedia={props.initialMedia}
             />
+            <Reactions />
           </div>
           {/* Participants strip */}
           <div className="bg-panel border-t border-border">

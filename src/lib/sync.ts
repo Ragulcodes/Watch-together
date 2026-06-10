@@ -9,6 +9,18 @@ export type SyncEvent =
 
 export const SYNC_TOPIC = "watch-sync";
 export const CHAT_TOPIC = "watch-chat";
+export const REACTION_TOPIC = "watch-reactions";
+
+export type ReactionEvent = {
+  type: "reaction";
+  emoji: string;
+  senderId: string;
+  senderName: string;
+  at: number;
+};
+
+// Emojis offered in the reaction bar.
+export const REACTION_EMOJIS = ["❤️", "😂", "😮", "👏", "🔥", "😢", "🎉", "👍"];
 
 export type ChatEvent = {
   type: "chat";

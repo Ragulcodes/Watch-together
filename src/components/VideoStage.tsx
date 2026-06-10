@@ -4,8 +4,30 @@ import {
   ParticipantTile,
   ConnectionQualityIndicator,
   TrackRefContext,
+  useIsSpeaking,
 } from "@livekit/components-react";
-import { Track } from "livekit-client";
+import { Track, type Participant } from "livekit-client";
+import type { TrackReferenceOrPlaceholder } from "@livekit/components-react";
+
+function Tile({ trackRef }: { trackRef: TrackReferenceOrPlaceholder }) {
+  const speaking = useIsSpeaking(trackRef.participant as Participant);
+  return (
+    <TrackRefContext.Provider value={trackRef}>
+      <div
+        className={`relative w-44 h-28 rounded-lg overflow-hidden bg-black flex-shrink-0 border transition-all ${
+          speaking
+            ? "border-accent2 ring-2 ring-accent2/60"
+            : "border-border"
+        }`}
+      >
+        <ParticipantTile trackRef={trackRef} />
+        <div className="absolute top-1 right-1 rounded bg-black/50 px-1 py-0.5">
+          <ConnectionQualityIndicator />
+        </div>
+      </div>
+    </TrackRefContext.Provider>
+  );
+}
 
 export function VideoStage() {
   const tracks = useTracks(
@@ -21,17 +43,10 @@ export function VideoStage() {
         </div>
       ) : (
         tracks.map((trackRef) => (
-          <TrackRefContext.Provider
+          <Tile
             key={trackRef.participant.identity + ":" + trackRef.source}
-            value={trackRef}
-          >
-            <div className="relative w-44 h-28 rounded-lg overflow-hidden border border-border bg-black flex-shrink-0">
-              <ParticipantTile trackRef={trackRef} />
-              <div className="absolute top-1 right-1 rounded bg-black/50 px-1 py-0.5">
-                <ConnectionQualityIndicator />
-              </div>
-            </div>
-          </TrackRefContext.Provider>
+            trackRef={trackRef}
+          />
         ))
       )}
     </div>
