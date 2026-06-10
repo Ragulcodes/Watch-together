@@ -22,6 +22,8 @@ export default function RoomsPage() {
   const [creating, setCreating] = useState(false);
   const [name, setName] = useState("");
   const [desc, setDesc] = useState("");
+  const [isPrivate, setIsPrivate] = useState(false);
+  const [passcode, setPasscode] = useState("");
   const [err, setErr] = useState<string | null>(null);
 
   async function load() {
@@ -41,7 +43,12 @@ export default function RoomsPage() {
     const res = await fetch("/api/rooms", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ name, description: desc || null }),
+      body: JSON.stringify({
+        name,
+        description: desc || null,
+        isPrivate,
+        passcode: isPrivate ? passcode : null,
+      }),
     });
     if (!res.ok) {
       const d = await res.json().catch(() => ({}));
@@ -88,6 +95,27 @@ export default function RoomsPage() {
               onChange={(e) => setDesc(e.target.value)}
               maxLength={280}
             />
+            <label className="flex items-center gap-2 text-sm text-muted cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={isPrivate}
+                onChange={(e) => setIsPrivate(e.target.checked)}
+                className="accent-accent"
+              />
+              🔒 Private room (requires a passcode to join)
+            </label>
+            {isPrivate && (
+              <input
+                className="input"
+                type="text"
+                placeholder="Passcode (min 4 chars)"
+                value={passcode}
+                onChange={(e) => setPasscode(e.target.value)}
+                minLength={4}
+                maxLength={128}
+                required
+              />
+            )}
             {err && <div className="text-sm text-danger">{err}</div>}
             <div className="flex gap-2">
               <button className="btn-primary" type="submit">Create</button>

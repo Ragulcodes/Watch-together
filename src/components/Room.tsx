@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   LiveKitRoom,
   RoomAudioRenderer,
@@ -26,23 +26,64 @@ export function Room(props: {
   const [token, setToken] = useState<string | null>(null);
   const [url, setUrl] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
+  const [needPasscode, setNeedPasscode] = useState(false);
+  const [passcode, setPasscode] = useState("");
+  const [joining, setJoining] = useState(false);
+
+  const fetchToken = useCallback(async () => {
+    const res = await fetch(
+      `/api/livekit/token?room=${encodeURIComponent(props.roomSlug)}`,
+    );
+    if (res.status === 403) {
+      const d = await res.json().catch(() => ({}));
+      if (d.code === "passcode_required") {
+        setNeedPasscode(true);
+        return;
+      }
+    }
+    if (!res.ok) {
+      const d = await res.json().catch(() => ({}));
+      setErr(d.error ?? "Could not join room");
+      return;
+    }
+    const data = await res.json();
+    setToken(data.token);
+    setUrl(data.url);
+    setNeedPasscode(false);
+  }, [props.roomSlug]);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const res = await fetch(`/api/livekit/token?room=${encodeURIComponent(props.roomSlug)}`);
+      if (!cancelled) await fetchToken();
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [fetchToken]);
+
+  const submitPasscode = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      setJoining(true);
+      setErr(null);
+      const res = await fetch(
+        `/api/rooms/${encodeURIComponent(props.roomSlug)}/join`,
+        {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ passcode }),
+        },
+      );
+      setJoining(false);
       if (!res.ok) {
-        const d = await res.json().catch(() => ({}));
-        setErr(d.error ?? "Could not join room");
+        setErr("Incorrect passcode — try again.");
         return;
       }
-      const data = await res.json();
-      if (cancelled) return;
-      setToken(data.token);
-      setUrl(data.url);
-    })();
-    return () => { cancelled = true; };
-  }, [props.roomSlug]);
+      await fetchToken();
+    },
+    [passcode, props.roomSlug, fetchToken],
+  );
 
   if (err) {
     return (
@@ -51,6 +92,30 @@ export function Room(props: {
           <h2 className="text-xl text-white">Couldn’t join</h2>
           <p className="text-muted mt-2">{err}</p>
         </div>
+      </main>
+    );
+  }
+
+  if (needPasscode) {
+    return (
+      <main className="flex-1 grid place-items-center p-10">
+        <form onSubmit={submitPasscode} className="card p-8 w-full max-w-sm text-center">
+          <h2 className="text-xl text-white">🔒 Private room</h2>
+          <p className="text-muted mt-2 text-sm">
+            Enter the passcode to join <span className="text-white">{props.roomName}</span>.
+          </p>
+          <input
+            autoFocus
+            type="password"
+            className="input mt-4"
+            placeholder="Passcode"
+            value={passcode}
+            onChange={(e) => setPasscode(e.target.value)}
+          />
+          <button className="btn-primary w-full mt-3" disabled={joining}>
+            {joining ? "Joining…" : "Join room"}
+          </button>
+        </form>
       </main>
     );
   }

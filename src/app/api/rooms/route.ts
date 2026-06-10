@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
+import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -11,11 +12,17 @@ const slugify = (s: string) =>
     .replace(/^-+|-+$/g, "")
     .slice(0, 40) || `room-${Math.random().toString(36).slice(2, 8)}`;
 
-const createSchema = z.object({
-  name: z.string().min(1).max(60),
-  description: z.string().max(280).optional().nullable(),
-  isPrivate: z.boolean().optional().default(false),
-});
+const createSchema = z
+  .object({
+    name: z.string().min(1).max(60),
+    description: z.string().max(280).optional().nullable(),
+    isPrivate: z.boolean().optional().default(false),
+    passcode: z.string().min(4).max(128).optional().nullable(),
+  })
+  .refine((d) => !d.isPrivate || (d.passcode && d.passcode.length >= 4), {
+    message: "Private rooms require a passcode of at least 4 characters",
+    path: ["passcode"],
+  });
 
 export async function GET() {
   const rooms = await prisma.room.findMany({
@@ -53,12 +60,18 @@ export async function POST(req: Request) {
   while (await prisma.room.findUnique({ where: { slug } })) {
     slug = `${slug}-${Math.random().toString(36).slice(2, 5)}`;
   }
+  const isPrivate = parsed.data.isPrivate ?? false;
+  const passcodeHash =
+    isPrivate && parsed.data.passcode
+      ? await bcrypt.hash(parsed.data.passcode, 12)
+      : null;
   const room = await prisma.room.create({
     data: {
       slug,
       name: parsed.data.name,
       description: parsed.data.description ?? null,
-      isPrivate: parsed.data.isPrivate ?? false,
+      isPrivate,
+      passcodeHash,
       ownerId: session.user.id,
       memberships: {
         create: { userId: session.user.id, role: "owner" },

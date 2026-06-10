@@ -18,14 +18,28 @@ export async function GET(req: Request) {
   if (!room) {
     return NextResponse.json({ error: "Room not found" }, { status: 404 });
   }
-  // Auto-join membership (for public rooms). Private rooms would require a passcode flow.
+  const isOwner = room.ownerId === session.user.id;
+  const existing = await prisma.membership.findUnique({
+    where: { userId_roomId: { userId: session.user.id, roomId: room.id } },
+  });
+
+  // Private rooms require an explicit passcode join (POST /api/rooms/:id/join)
+  // which creates the membership. Without it, refuse to mint a token.
+  if (room.isPrivate && !isOwner && !existing) {
+    return NextResponse.json(
+      { error: "Passcode required", code: "passcode_required" },
+      { status: 403 },
+    );
+  }
+
+  // Public rooms (or already-members) auto-join.
   await prisma.membership.upsert({
     where: { userId_roomId: { userId: session.user.id, roomId: room.id } },
     update: {},
     create: {
       userId: session.user.id,
       roomId: room.id,
-      role: room.ownerId === session.user.id ? "owner" : "member",
+      role: isOwner ? "owner" : "member",
     },
   });
   const token = await mintLiveKitToken({
