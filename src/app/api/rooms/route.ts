@@ -1,0 +1,69 @@
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { z } from "zod";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+
+const slugify = (s: string) =>
+  s
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 40) || `room-${Math.random().toString(36).slice(2, 8)}`;
+
+const createSchema = z.object({
+  name: z.string().min(1).max(60),
+  description: z.string().max(280).optional().nullable(),
+  isPrivate: z.boolean().optional().default(false),
+});
+
+export async function GET() {
+  const rooms = await prisma.room.findMany({
+    where: { isPrivate: false },
+    orderBy: { createdAt: "desc" },
+    take: 50,
+    select: {
+      id: true,
+      slug: true,
+      name: true,
+      description: true,
+      createdAt: true,
+      _count: { select: { memberships: true } },
+      owner: { select: { displayName: true, username: true } },
+    },
+  });
+  return NextResponse.json({ rooms });
+}
+
+export async function POST(req: Request) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  const json = await req.json().catch(() => null);
+  const parsed = createSchema.safeParse(json);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: "Invalid input", details: parsed.error.flatten() },
+      { status: 400 },
+    );
+  }
+  let slug = slugify(parsed.data.name);
+  // Ensure uniqueness
+  while (await prisma.room.findUnique({ where: { slug } })) {
+    slug = `${slug}-${Math.random().toString(36).slice(2, 5)}`;
+  }
+  const room = await prisma.room.create({
+    data: {
+      slug,
+      name: parsed.data.name,
+      description: parsed.data.description ?? null,
+      isPrivate: parsed.data.isPrivate ?? false,
+      ownerId: session.user.id,
+      memberships: {
+        create: { userId: session.user.id, role: "owner" },
+      },
+    },
+  });
+  return NextResponse.json({ room });
+}
