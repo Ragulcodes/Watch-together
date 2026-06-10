@@ -36,6 +36,9 @@ model Room {
   isPlaying     Boolean       @default(false)
   positionSec   Float         @default(0)
   positionAt    DateTime      @default(now())
+  // Recording (LiveKit Egress)
+  recordingEgressId   String?
+  recordingStartedAt  DateTime?
   memberships   Membership[]
   messages      Message[]
 

@@ -8,6 +8,7 @@ import { ChatPanel } from "./ChatPanel";
 import { ScreenShareView } from "./ScreenShareView";
 import { DeviceSettings } from "./DeviceSettings";
 import { Reactions } from "./Reactions";
+import { RecordButton } from "./RecordButton";
 import { Crown, Users, X } from "lucide-react";
 
 export function RoomStage(props: {
@@ -44,11 +45,14 @@ export function RoomStage(props: {
               </span>
             </div>
           </div>
-          <Controls
-            onToggleChat={() => setShowChat((s) => !s)}
-            chatOpen={showChat}
-            onOpenSettings={() => setShowSettings(true)}
-          />
+          <div className="flex items-center gap-2">
+            <RecordButton roomSlug={props.roomSlug} isHost={isHost} />
+            <Controls
+              onToggleChat={() => setShowChat((s) => !s)}
+              chatOpen={showChat}
+              onOpenSettings={() => setShowSettings(true)}
+            />
+          </div>
         </div>
 
         <div className="flex-1 grid grid-rows-[1fr_auto] min-h-0">

@@ -1,4 +1,19 @@
-import { AccessToken, RoomServiceClient } from "livekit-server-sdk";
+import { AccessToken, RoomServiceClient, EgressClient } from "livekit-server-sdk";
+
+function httpHost() {
+  const wsUrl = process.env.LIVEKIT_URL;
+  if (!wsUrl) throw new Error("LIVEKIT_URL is not configured");
+  return wsUrl.replace(/^ws:\/\//, "http://").replace(/^wss:\/\//, "https://");
+}
+
+export function getEgressClient() {
+  const apiKey = process.env.LIVEKIT_API_KEY;
+  const apiSecret = process.env.LIVEKIT_API_SECRET;
+  if (!apiKey || !apiSecret) {
+    throw new Error("LiveKit credentials are not configured");
+  }
+  return new EgressClient(httpHost(), apiKey, apiSecret);
+}
 
 /**
  * Server-side admin client for moderation (kick / mute). RoomServiceClient
