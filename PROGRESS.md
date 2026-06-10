@@ -28,7 +28,7 @@ Self-paced build loop. Each iteration: implement one item → `next build` green
 T1. [x] Docker image slimming — Next standalone output: 1.1GB → 357MB, boot verified
 T2. [x] Versioned migrations — baselined `0_init`, entrypoint runs `migrate deploy`; verified on fresh DB (host + in-container)
 T3. [x] Health endpoint `/api/health` (db check + livekit config) + security headers (CSP, X-Frame-Options, nosniff, Referrer-Policy, Permissions-Policy for camera/mic/screen, HSTS). CSP dev/prod-aware; verified e2e-green against BOTH dev and prod servers (caught + fixed a CSP-breaks-JS regression).
-T4. [ ] Unit tests (Vitest) for pure logic: rate limiter, host election, slugify
+T4. [x] Unit tests (Vitest) — extracted `electHost`/`slugify` to pure libs; 14 tests across rateLimit, electHost (incl. migration), slugify. All green; build still passes. `npm test`.
 T5. [ ] CI workflow (GitHub Actions): typecheck + build + unit + e2e
 T6. [ ] Room UX: copy-invite-link, leave/delete room, capacity guard
 T7. [ ] Error boundaries + loading/empty states polish + a11y pass

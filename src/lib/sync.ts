@@ -41,3 +41,19 @@ export function decode<T>(buf: Uint8Array): T {
 
 // Drift tolerance (seconds) before snapping the local player to remote state.
 export const DRIFT_THRESHOLD_SEC = 1.25;
+
+/**
+ * Deterministic host election for synced playback. The room owner is
+ * authoritative whenever present; otherwise the present participant with the
+ * lowest identity is elected. Because every client runs this over the same
+ * participant list, they all agree without exchanging election messages.
+ */
+export function electHost(
+  presentIds: string[],
+  ownerId: string,
+  fallbackId: string,
+): string {
+  if (presentIds.includes(ownerId)) return ownerId;
+  const sorted = [...presentIds].sort();
+  return sorted[0] ?? fallbackId;
+}

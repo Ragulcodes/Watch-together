@@ -5,13 +5,7 @@ import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { rateLimit, maybeCleanup } from "@/lib/rateLimit";
-
-const slugify = (s: string) =>
-  s
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 40) || `room-${Math.random().toString(36).slice(2, 8)}`;
+import { slugify } from "@/lib/slug";
 
 const createSchema = z
   .object({
@@ -65,7 +59,8 @@ export async function POST(req: Request) {
       { status: 400 },
     );
   }
-  let slug = slugify(parsed.data.name);
+  let slug =
+    slugify(parsed.data.name) || `room-${Math.random().toString(36).slice(2, 8)}`;
   // Ensure uniqueness
   while (await prisma.room.findUnique({ where: { slug } })) {
     slug = `${slug}-${Math.random().toString(36).slice(2, 5)}`;

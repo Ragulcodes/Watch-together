@@ -10,6 +10,7 @@ import {
   DRIFT_THRESHOLD_SEC,
   SYNC_TOPIC,
   decode,
+  electHost,
   encode,
   type SyncEvent,
 } from "@/lib/sync";
@@ -50,10 +51,7 @@ export function SyncedPlayer(props: {
    */
   const { amEffectiveHost, electedHostId } = useMemo(() => {
     const ids = participants.map((p) => p.identity);
-    const ownerPresent = ids.includes(props.ownerId);
-    const elected = ownerPresent
-      ? props.ownerId
-      : [...ids].sort()[0] ?? props.currentUserId;
+    const elected = electHost(ids, props.ownerId, props.currentUserId);
     return { amEffectiveHost: elected === props.currentUserId, electedHostId: elected };
   }, [participants, props.ownerId, props.currentUserId]);
 
