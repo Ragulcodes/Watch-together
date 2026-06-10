@@ -58,6 +58,7 @@ export function RoomStage(props: {
             <SyncedPlayer
               roomSlug={props.roomSlug}
               isHost={isHost}
+              ownerId={props.ownerId}
               currentUserId={props.currentUserId}
               initialMedia={props.initialMedia}
             />

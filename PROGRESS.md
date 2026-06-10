@@ -15,7 +15,7 @@ Self-paced build loop. Each iteration: implement one item → `next build` green
 1. [x] Private rooms + passcodes (join gate UI/API) — verified: gate→reject→accept→token, hidden from list
 2. [x] Reactions + presence polish — floating emoji reactions (LiveKit data channel), speaking glow ring on tiles
 3. [x] Moderation — host kick/mute (LiveKit RoomServiceClient), chat rate limit (10/10s), room-create limit (5/min); verified: 429s + 403 non-host + 400 owner-protect
-4. [ ] Resilient sync: host migration, catch-up for late/behind viewers
+4. [x] Resilient sync — deterministic host migration (owner→lowest-identity fallback, all clients agree), buffering auto-resync + manual "Sync to host"; election logic unit-verified
 5. [ ] Mobile-responsive layout + PWA install
 6. [ ] Recording (LiveKit Egress) + replay
 7. [ ] Deploy: Dockerfile + docker-compose (app + postgres + livekit) + LiveKit Cloud guide
