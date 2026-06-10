@@ -1,5 +1,10 @@
 "use client";
-import { useTracks, ParticipantTile } from "@livekit/components-react";
+import {
+  useTracks,
+  ParticipantTile,
+  ConnectionQualityIndicator,
+  TrackRefContext,
+} from "@livekit/components-react";
 import { Track } from "livekit-client";
 
 export function VideoStage() {
@@ -16,12 +21,17 @@ export function VideoStage() {
         </div>
       ) : (
         tracks.map((trackRef) => (
-          <div
+          <TrackRefContext.Provider
             key={trackRef.participant.identity + ":" + trackRef.source}
-            className="w-44 h-28 rounded-lg overflow-hidden border border-border bg-black flex-shrink-0"
+            value={trackRef}
           >
-            <ParticipantTile trackRef={trackRef} />
-          </div>
+            <div className="relative w-44 h-28 rounded-lg overflow-hidden border border-border bg-black flex-shrink-0">
+              <ParticipantTile trackRef={trackRef} />
+              <div className="absolute top-1 right-1 rounded bg-black/50 px-1 py-0.5">
+                <ConnectionQualityIndicator />
+              </div>
+            </div>
+          </TrackRefContext.Provider>
         ))
       )}
     </div>

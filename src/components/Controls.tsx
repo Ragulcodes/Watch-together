@@ -2,15 +2,18 @@
 import { useCallback, useState } from "react";
 import { useLocalParticipant, useRoomContext } from "@livekit/components-react";
 import { Track } from "livekit-client";
-import { Mic, MicOff, Video, VideoOff, MonitorUp, MonitorOff, MessageSquare, PhoneOff } from "lucide-react";
+import { Mic, MicOff, Video, VideoOff, MonitorUp, MonitorOff, MessageSquare, PhoneOff, Settings } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { movieScreenShareOptions } from "@/lib/roomOptions";
 
 export function Controls({
   onToggleChat,
   chatOpen,
+  onOpenSettings,
 }: {
   onToggleChat: () => void;
   chatOpen: boolean;
+  onOpenSettings: () => void;
 }) {
   const router = useRouter();
   const { localParticipant } = useLocalParticipant();
@@ -34,7 +37,10 @@ export function Controls({
   const toggleShare = useCallback(async () => {
     const next = !shareOn;
     try {
-      await localParticipant.setScreenShareEnabled(next, { audio: true });
+      await localParticipant.setScreenShareEnabled(
+        next,
+        next ? movieScreenShareOptions : undefined,
+      );
       setShareOn(next);
     } catch {
       setShareOn(false);
@@ -54,6 +60,13 @@ export function Controls({
         on={<Video size={16} />} off={<VideoOff size={16} />} label="Camera" />
       <IconBtn active={shareOn} onClick={toggleShare}
         on={<MonitorUp size={16} />} off={<MonitorOff size={16} />} label="Share" />
+      <button
+        className="btn-secondary"
+        onClick={onOpenSettings}
+        title="Camera & mic settings"
+      >
+        <Settings size={16} />
+      </button>
       <button
         className={`btn-secondary ${chatOpen ? "border-accent/60 text-white" : ""}`}
         onClick={onToggleChat}

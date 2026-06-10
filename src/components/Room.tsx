@@ -5,6 +5,7 @@ import {
   RoomAudioRenderer,
 } from "@livekit/components-react";
 import { RoomStage } from "./RoomStage";
+import { roomOptions } from "@/lib/roomOptions";
 
 type InitialMedia = {
   url: string | null;
@@ -66,6 +67,7 @@ export function Room(props: {
       data-lk-theme="default"
       token={token}
       serverUrl={url}
+      options={roomOptions}
       connect
       video={false}
       audio={false}
