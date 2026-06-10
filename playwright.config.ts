@@ -19,11 +19,11 @@ export default defineConfig({
     },
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
-  // Reuse the running dev server (started by the loop); otherwise boot one.
+  // Locally, reuse the already-running dev server; in CI, boot a fresh one.
   webServer: {
     command: "npm run dev",
     url: "http://localhost:3030",
-    reuseExistingServer: true,
-    timeout: 60_000,
+    reuseExistingServer: !process.env.CI,
+    timeout: 120_000,
   },
 });

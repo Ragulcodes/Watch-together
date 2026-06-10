@@ -29,7 +29,7 @@ T1. [x] Docker image slimming — Next standalone output: 1.1GB → 357MB, boot 
 T2. [x] Versioned migrations — baselined `0_init`, entrypoint runs `migrate deploy`; verified on fresh DB (host + in-container)
 T3. [x] Health endpoint `/api/health` (db check + livekit config) + security headers (CSP, X-Frame-Options, nosniff, Referrer-Policy, Permissions-Policy for camera/mic/screen, HSTS). CSP dev/prod-aware; verified e2e-green against BOTH dev and prod servers (caught + fixed a CSP-breaks-JS regression).
 T4. [x] Unit tests (Vitest) — extracted `electHost`/`slugify` to pure libs; 14 tests across rateLimit, electHost (incl. migration), slugify. All green; build still passes. `npm test`.
-T5. [ ] CI workflow (GitHub Actions): typecheck + build + unit + e2e
+T5. [x] CI workflow (GitHub Actions) — `build-test` job (tsc --noEmit, vitest, next build) + `e2e` job (postgres service, migrate deploy, Playwright/chromium, report artifact on failure). Playwright config CI-aware (reuse server only locally). All invoked commands verified locally; runs on GitHub on push/PR.
 T6. [ ] Room UX: copy-invite-link, leave/delete room, capacity guard
 T7. [ ] Error boundaries + loading/empty states polish + a11y pass
 
