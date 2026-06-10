@@ -12,3 +12,6 @@ next-env.d.ts
 prisma/dev.db*
 recordings/*
 !recordings/.gitkeep
+test-results
+playwright-report
+.playwright
