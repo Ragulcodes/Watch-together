@@ -2,7 +2,9 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { mintLiveKitToken } from "@/lib/livekit";
+import { mintLiveKitToken, getRoomServiceClient } from "@/lib/livekit";
+
+const ROOM_CAPACITY = Number(process.env.ROOM_CAPACITY ?? 12);
 
 export async function GET(req: Request) {
   const session = await getServerSession(authOptions);
@@ -30,6 +32,26 @@ export async function GET(req: Request) {
       { error: "Passcode required", code: "passcode_required" },
       { status: 403 },
     );
+  }
+
+  // Capacity guard: cap concurrent participants. The owner always gets in so
+  // they can't be locked out of their own room.
+  if (!isOwner) {
+    let liveCount = 0;
+    try {
+      const svc = getRoomServiceClient();
+      const participants = await svc.listParticipants(room.slug);
+      liveCount = participants.length;
+    } catch {
+      // Room not yet live in LiveKit (nobody connected) → treat as empty.
+      liveCount = 0;
+    }
+    if (liveCount >= ROOM_CAPACITY) {
+      return NextResponse.json(
+        { error: `Room is full (max ${ROOM_CAPACITY}).`, code: "room_full" },
+        { status: 403 },
+      );
+    }
   }
 
   // Public rooms (or already-members) auto-join.

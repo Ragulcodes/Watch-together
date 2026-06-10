@@ -1,5 +1,6 @@
 "use client";
-import { useState } from "react";
+import { useCallback, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useParticipants } from "@livekit/components-react";
 import { VideoStage } from "./VideoStage";
 import { Controls } from "./Controls";
@@ -9,7 +10,7 @@ import { ScreenShareView } from "./ScreenShareView";
 import { DeviceSettings } from "./DeviceSettings";
 import { Reactions } from "./Reactions";
 import { RecordButton } from "./RecordButton";
-import { Crown, Users, X } from "lucide-react";
+import { Crown, Users, X, Link2, Trash2, Check } from "lucide-react";
 
 export function RoomStage(props: {
   roomSlug: string;
@@ -27,8 +28,28 @@ export function RoomStage(props: {
 }) {
   const [showChat, setShowChat] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
+  const [copied, setCopied] = useState(false);
   const isHost = props.currentUserId === props.ownerId;
   const participants = useParticipants();
+  const router = useRouter();
+
+  const copyInvite = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      /* clipboard blocked — ignore */
+    }
+  }, []);
+
+  const deleteRoom = useCallback(async () => {
+    if (!confirm("Delete this room for everyone? This can't be undone.")) return;
+    const res = await fetch(`/api/rooms/${encodeURIComponent(props.roomSlug)}`, {
+      method: "DELETE",
+    });
+    if (res.ok) router.push("/rooms");
+  }, [props.roomSlug, router]);
 
   return (
     <div className="flex-1 flex min-h-0 relative">
@@ -46,6 +67,23 @@ export function RoomStage(props: {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <button
+              onClick={copyInvite}
+              className="btn-secondary"
+              title="Copy invite link"
+            >
+              {copied ? <Check size={16} /> : <Link2 size={16} />}
+              <span className="hidden md:inline">{copied ? "Copied!" : "Invite"}</span>
+            </button>
+            {isHost && (
+              <button
+                onClick={deleteRoom}
+                className="btn bg-danger/80 hover:bg-danger text-white"
+                title="Delete room"
+              >
+                <Trash2 size={16} />
+              </button>
+            )}
             <RecordButton roomSlug={props.roomSlug} isHost={isHost} />
             <Controls
               onToggleChat={() => setShowChat((s) => !s)}

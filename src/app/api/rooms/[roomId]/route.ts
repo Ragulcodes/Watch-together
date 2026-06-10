@@ -58,3 +58,24 @@ export async function PATCH(
   });
   return NextResponse.json({ room: updated });
 }
+
+// Delete a room (owner only). Memberships and messages cascade.
+export async function DELETE(
+  _req: Request,
+  { params }: { params: { roomId: string } },
+) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  const room = await prisma.room.findFirst({
+    where: { OR: [{ id: params.roomId }, { slug: params.roomId }] },
+    select: { id: true, ownerId: true },
+  });
+  if (!room) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  if (room.ownerId !== session.user.id) {
+    return NextResponse.json({ error: "Only the owner can delete this room" }, { status: 403 });
+  }
+  await prisma.room.delete({ where: { id: room.id } });
+  return NextResponse.json({ ok: true });
+}
