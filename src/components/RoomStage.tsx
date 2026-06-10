@@ -71,6 +71,7 @@ export function RoomStage(props: {
               onClick={copyInvite}
               className="btn-secondary"
               title="Copy invite link"
+              aria-label="Copy invite link to clipboard"
             >
               {copied ? <Check size={16} /> : <Link2 size={16} />}
               <span className="hidden md:inline">{copied ? "Copied!" : "Invite"}</span>
@@ -80,6 +81,7 @@ export function RoomStage(props: {
                 onClick={deleteRoom}
                 className="btn bg-danger/80 hover:bg-danger text-white"
                 title="Delete room"
+                aria-label="Delete this room"
               >
                 <Trash2 size={16} />
               </button>

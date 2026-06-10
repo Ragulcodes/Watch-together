@@ -79,6 +79,7 @@ export function Reactions() {
             onClick={() => react(e)}
             className="text-xl px-1.5 py-0.5 rounded-full hover:bg-white/10 transition active:scale-90"
             title={`React ${e}`}
+            aria-label={`Send ${e} reaction`}
           >
             {e}
           </button>

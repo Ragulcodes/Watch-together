@@ -31,7 +31,11 @@ T3. [x] Health endpoint `/api/health` (db check + livekit config) + security hea
 T4. [x] Unit tests (Vitest) — extracted `electHost`/`slugify` to pure libs; 14 tests across rateLimit, electHost (incl. migration), slugify. All green; build still passes. `npm test`.
 T5. [x] CI workflow (GitHub Actions) — `build-test` job (tsc --noEmit, vitest, next build) + `e2e` job (postgres service, migrate deploy, Playwright/chromium, report artifact on failure). Playwright config CI-aware (reuse server only locally). All invoked commands verified locally; runs on GitHub on push/PR.
 T6. [x] Room UX — copy-invite-link (clipboard), owner delete room (DELETE API, cascades), capacity guard in token endpoint (live-count vs ROOM_CAPACITY=12, owner bypass). Verified: non-owner DELETE→403, owner→200, deleted→404, capacity path keeps normal minting intact. Leave room already in Controls.
-T7. [ ] Error boundaries + loading/empty states polish + a11y pass
+T7. [x] Error boundaries (`error.tsx`, `global-error.tsx`) + custom 404 (`not-found.tsx`) + a11y pass (aria-label/aria-pressed on all icon buttons, keyboard focus-visible ring). Verified: 404 renders, e2e (4) + unit (14) still green.
+
+---
+## ✅ Tier 2 hardening complete (T1–T7) — each built, verified, committed.
+MVP (8) + Tier 2 (7) = 15 shipped increments. Build green, e2e + unit green, slim image boots, migrations versioned, CI in place.
 
 ## Local dev stack (Docker)
 - Postgres: `wt-postgres` → localhost:5544 (wt/wt/watch_together)

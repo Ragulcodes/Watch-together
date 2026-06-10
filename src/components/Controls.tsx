@@ -64,6 +64,7 @@ export function Controls({
         className="btn-secondary"
         onClick={onOpenSettings}
         title="Camera & mic settings"
+        aria-label="Open camera and microphone settings"
       >
         <Settings size={16} />
       </button>
@@ -71,6 +72,8 @@ export function Controls({
         className={`btn-secondary ${chatOpen ? "border-accent/60 text-white" : ""}`}
         onClick={onToggleChat}
         title="Toggle chat"
+        aria-label="Toggle chat panel"
+        aria-pressed={chatOpen}
       >
         <MessageSquare size={16} />
       </button>
@@ -78,6 +81,7 @@ export function Controls({
         onClick={leave}
         className="btn bg-danger/90 hover:bg-danger text-white"
         title="Leave room"
+        aria-label="Leave room"
       >
         <PhoneOff size={16} />
       </button>
@@ -98,6 +102,8 @@ function IconBtn({
     <button
       onClick={onClick}
       title={label}
+      aria-label={`${label}: ${active ? "on" : "off"}`}
+      aria-pressed={active}
       className={`btn ${active ? "bg-accent text-white" : "bg-panel2 text-white border border-border hover:border-accent/60"}`}
     >
       {active ? on : off}
