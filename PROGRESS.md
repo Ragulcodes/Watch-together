@@ -22,7 +22,16 @@ Self-paced build loop. Each iteration: implement one item → `next build` green
 8. [x] Tests — Playwright e2e (4 specs, all green): landing CTAs, signup→create public room→opens, private-room passcode-field + owner bypass, room appears in list. Fake-media launch flags; WebRTC media-path e2e left for a dedicated harness.
 
 ---
-## 🎉 All 8 roadmap items complete — each built, verified, and committed.
+## 🎉 MVP roadmap (8 items) complete — each built, verified, and committed.
+
+## Tier 2 — production hardening (in order)
+T1. [ ] Docker image slimming — Next.js standalone output (~1.1GB → ~200MB)
+T2. [ ] Versioned migrations — replace `db push` with `prisma migrate deploy`
+T3. [ ] Health endpoint `/api/health` (db + livekit reachability) + security headers (CSP etc.)
+T4. [ ] Unit tests (Vitest) for pure logic: rate limiter, host election, slugify
+T5. [ ] CI workflow (GitHub Actions): typecheck + build + unit + e2e
+T6. [ ] Room UX: copy-invite-link, leave/delete room, capacity guard
+T7. [ ] Error boundaries + loading/empty states polish + a11y pass
 
 ## Local dev stack (Docker)
 - Postgres: `wt-postgres` → localhost:5544 (wt/wt/watch_together)
