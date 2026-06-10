@@ -25,8 +25,8 @@ Self-paced build loop. Each iteration: implement one item → `next build` green
 ## 🎉 MVP roadmap (8 items) complete — each built, verified, and committed.
 
 ## Tier 2 — production hardening (in order)
-T1. [ ] Docker image slimming — Next.js standalone output (~1.1GB → ~200MB)
-T2. [ ] Versioned migrations — replace `db push` with `prisma migrate deploy`
+T1. [x] Docker image slimming — Next standalone output: 1.1GB → 357MB, boot verified
+T2. [x] Versioned migrations — baselined `0_init`, entrypoint runs `migrate deploy`; verified on fresh DB (host + in-container)
 T3. [ ] Health endpoint `/api/health` (db + livekit reachability) + security headers (CSP etc.)
 T4. [ ] Unit tests (Vitest) for pure logic: rate limiter, host election, slugify
 T5. [ ] CI workflow (GitHub Actions): typecheck + build + unit + e2e

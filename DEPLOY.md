@@ -16,7 +16,7 @@ What runs:
 
 | Service | Purpose | Port |
 |---|---|---|
-| `app` | Next.js app (auto-runs `prisma db push` on boot) | 3030 |
+| `app` | Next.js app (auto-runs `prisma migrate deploy` on boot) | 3030 |
 | `postgres` | Database | (internal) |
 | `livekit` | SFU — video/audio/screen-share | 7880/7881 + 50000-50100/udp |
 | `egress` | Recording worker (RoomComposite → MP4 in `./recordings`) | (internal) |
@@ -38,7 +38,7 @@ Best balance for most teams.
    - `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET`, `LIVEKIT_URL` (the `wss://` URL)
    - `NEXT_PUBLIC_LIVEKIT_URL` (same `wss://` URL)
    - For S3 recording uploads: `S3_BUCKET`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`
-4. Run the schema once against your DB: `DATABASE_URL=… npx prisma db push`.
+4. Apply migrations once against your DB: `DATABASE_URL=… npx prisma migrate deploy`.
 
 ## 3. Container host (Fly.io / Railway / Render) + LiveKit Cloud
 
@@ -47,7 +47,7 @@ docker build -t watch-together .
 # push to your registry, then run with the env vars from path 2.
 ```
 
-The image runs `prisma db push` on start (see `docker-entrypoint.sh`), then `next start` on `$PORT` (default 3030).
+The image runs `prisma migrate deploy` on start (see `docker-entrypoint.sh`), then the standalone server on `$PORT` (default 3030).
 
 ## Environment reference
 
