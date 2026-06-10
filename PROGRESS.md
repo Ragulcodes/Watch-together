@@ -27,7 +27,7 @@ Self-paced build loop. Each iteration: implement one item → `next build` green
 ## Tier 2 — production hardening (in order)
 T1. [x] Docker image slimming — Next standalone output: 1.1GB → 357MB, boot verified
 T2. [x] Versioned migrations — baselined `0_init`, entrypoint runs `migrate deploy`; verified on fresh DB (host + in-container)
-T3. [ ] Health endpoint `/api/health` (db + livekit reachability) + security headers (CSP etc.)
+T3. [x] Health endpoint `/api/health` (db check + livekit config) + security headers (CSP, X-Frame-Options, nosniff, Referrer-Policy, Permissions-Policy for camera/mic/screen, HSTS). CSP dev/prod-aware; verified e2e-green against BOTH dev and prod servers (caught + fixed a CSP-breaks-JS regression).
 T4. [ ] Unit tests (Vitest) for pure logic: rate limiter, host election, slugify
 T5. [ ] CI workflow (GitHub Actions): typecheck + build + unit + e2e
 T6. [ ] Room UX: copy-invite-link, leave/delete room, capacity guard
