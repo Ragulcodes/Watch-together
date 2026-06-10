@@ -1,0 +1,72 @@
+name: watch-together
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: wt
+      POSTGRES_PASSWORD: wt
+      POSTGRES_DB: watch_together
+    volumes:
+      - wt_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wt -d watch_together"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  livekit:
+    image: livekit/livekit-server:latest
+    command: --config /etc/livekit.yaml
+    volumes:
+      - ./deploy/livekit.yaml:/etc/livekit.yaml:ro
+    ports:
+      - "7880:7880"      # signalling (ws)
+      - "7881:7881"      # rtc tcp
+      - "50000-50100:50000-50100/udp"  # rtc udp range
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  egress:
+    image: livekit/egress:latest
+    environment:
+      EGRESS_CONFIG_FILE: /etc/egress.yaml
+    volumes:
+      - ./deploy/egress.yaml:/etc/egress.yaml:ro
+      - ./recordings:/out
+    cap_add:
+      - SYS_ADMIN   # required by the headless Chrome compositor
+    depends_on:
+      - livekit
+      - redis
+
+  app:
+    build: .
+    environment:
+      DATABASE_URL: postgresql://wt:wt@postgres:5432/watch_together?schema=public
+      NEXTAUTH_URL: http://localhost:3030
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:-change-me-in-production}
+      LIVEKIT_API_KEY: devkey
+      LIVEKIT_API_SECRET: watchtogetherdevsecret0123456789abcd
+      LIVEKIT_URL: ws://livekit:7880
+      # Browser connects to LiveKit directly — must be reachable from the client:
+      NEXT_PUBLIC_LIVEKIT_URL: ${NEXT_PUBLIC_LIVEKIT_URL:-ws://localhost:7880}
+    ports:
+      - "3030:3030"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      livekit:
+        condition: service_started
+
+volumes:
+  wt_pgdata:

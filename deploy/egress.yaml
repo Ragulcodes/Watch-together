@@ -1,0 +1,13 @@
+# LiveKit Egress worker config. Records room composites to /out (mounted volume).
+# Requires Redis (shared with the LiveKit server) and matching API credentials.
+redis:
+  address: redis:6379
+api_key: devkey
+api_secret: watchtogetherdevsecret0123456789abcd
+ws_url: ws://livekit:7880
+insecure: true
+log_level: info
+# Local file output lands here; the app's EncodedFileOutput filepath is relative
+# to this directory inside the egress container.
+file_output:
+  local: true

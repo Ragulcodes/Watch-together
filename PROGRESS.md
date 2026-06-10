@@ -18,7 +18,7 @@ Self-paced build loop. Each iteration: implement one item → `next build` green
 4. [x] Resilient sync — deterministic host migration (owner→lowest-identity fallback, all clients agree), buffering auto-resync + manual "Sync to host"; election logic unit-verified
 5. [x] Mobile-responsive + PWA — chat drawer on mobile / sidebar on desktop, adaptive header; manifest + service worker + generated PNG icons (192/512/maskable), installable; all assets verified served
 6. [x] Recording (LiveKit Egress) — host start/stop API + REC indicator for all; RoomComposite→MP4, S3 upload if configured. Verified: status GET, non-host→403, host START reaches LiveKit RPC (502 graceful w/o egress worker). NOTE: full capture needs an Egress worker container + storage (not in dev `--dev` LiveKit).
-7. [ ] Deploy: Dockerfile + docker-compose (app + postgres + livekit) + LiveKit Cloud guide
+7. [x] Deploy — multi-stage Dockerfile (verified: image builds + boots, entrypoint runs prisma db push + serves 200), docker-compose (app+postgres+livekit+egress+redis, validated), LiveKit/Egress configs, DEPLOY.md (compose / Vercel+LiveKit Cloud / container-host paths)
 8. [ ] Tests: Playwright e2e for join → share → sync → chat
 
 ## Local dev stack (Docker)
