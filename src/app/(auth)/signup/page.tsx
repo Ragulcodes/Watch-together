@@ -40,7 +40,7 @@ export default function SignUpPage() {
       password: form.password,
       redirect: false,
     });
-    router.push("/rooms");
+    router.push("/welcome");
   }
 
   return (

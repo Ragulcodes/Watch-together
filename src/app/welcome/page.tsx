@@ -1,13 +1,21 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
+import { authOptions } from "@/lib/auth";
 import { Film, Play, Popcorn } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Welcome, Roshan Fazila 🤍❤️",
-  description: "A little movie night, just for you — from Ragul.",
+  title: "Welcome 🤍❤️",
+  description: "A little movie night, just for you.",
 };
 
-export default function WelcomePage() {
+export default async function WelcomePage() {
+  const session = await getServerSession(authOptions);
+  // The welcome greets whoever is signed in — so it needs a session.
+  if (!session?.user) redirect("/signin?callbackUrl=/welcome");
+  const name = session.user.name?.trim() || "friend";
+
   return (
     <main className="min-h-screen grid place-items-center px-4 py-16">
       <div className="card w-full max-w-xl p-8 sm:p-10 text-center welcome-rise">
@@ -22,7 +30,7 @@ export default function WelcomePage() {
         <h1 className="welcome-rise-2 mt-3 text-4xl sm:text-5xl font-semibold tracking-tight">
           Welcome,
           <br className="sm:hidden" />{" "}
-          <span className="text-accent">Roshan Fazila</span>{" "}
+          <span className="text-accent">{name}</span>{" "}
           <span className="inline-block animate-pulse align-middle">🤍❤️</span>
         </h1>
 
@@ -40,9 +48,6 @@ export default function WelcomePage() {
         <div className="welcome-rise-3 mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
           <Link href="/rooms" className="btn-primary text-base" style={{ padding: "0.7rem 1.6rem" }}>
             <Play size={18} /> Let&rsquo;s watch together
-          </Link>
-          <Link href="/signup" className="btn-ghost text-sm">
-            New here? Create your seat
           </Link>
         </div>
 

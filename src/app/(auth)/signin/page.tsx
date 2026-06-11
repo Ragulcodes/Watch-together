@@ -16,7 +16,7 @@ export default function SignInPage() {
 function SignInInner() {
   const router = useRouter();
   const params = useSearchParams();
-  const callback = params.get("callbackUrl") ?? "/rooms";
+  const callback = params.get("callbackUrl") ?? "/welcome";
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [err, setErr] = useState<string | null>(null);
