@@ -1,7 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { getServerSession } from "next-auth";
-import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
 import { Film, Play, Popcorn } from "lucide-react";
 
@@ -12,9 +11,7 @@ export const metadata: Metadata = {
 
 export default async function WelcomePage() {
   const session = await getServerSession(authOptions);
-  // The welcome greets whoever is signed in — so it needs a session.
-  if (!session?.user) redirect("/signin?callbackUrl=/welcome");
-  const name = session.user.name?.trim() || "friend";
+  const name = session?.user?.name?.trim();
 
   return (
     <main className="min-h-screen grid place-items-center px-4 py-16">
@@ -28,9 +25,15 @@ export default async function WelcomePage() {
         </p>
 
         <h1 className="welcome-rise-2 mt-3 text-4xl sm:text-5xl font-semibold tracking-tight">
-          Welcome,
-          <br className="sm:hidden" />{" "}
-          <span className="text-accent">{name}</span>{" "}
+          {name ? (
+            <>
+              Welcome,
+              <br className="sm:hidden" />{" "}
+              <span className="text-accent">{name}</span>{" "}
+            </>
+          ) : (
+            <>Welcome </>
+          )}
           <span className="inline-block animate-pulse align-middle">🤍❤️</span>
         </h1>
 
@@ -46,9 +49,20 @@ export default async function WelcomePage() {
         </p>
 
         <div className="welcome-rise-3 mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
-          <Link href="/rooms" className="btn-primary text-base" style={{ padding: "0.7rem 1.6rem" }}>
-            <Play size={18} /> Let&rsquo;s watch together
-          </Link>
+          {name ? (
+            <Link href="/rooms" className="btn-primary text-base" style={{ padding: "0.7rem 1.6rem" }}>
+              <Play size={18} /> Let&rsquo;s watch together
+            </Link>
+          ) : (
+            <>
+              <Link href="/signup" className="btn-primary text-base" style={{ padding: "0.7rem 1.6rem" }}>
+                <Play size={18} /> Create your seat
+              </Link>
+              <Link href="/signin?callbackUrl=/welcome" className="btn-secondary text-base" style={{ padding: "0.7rem 1.6rem" }}>
+                I already have one
+              </Link>
+            </>
+          )}
         </div>
 
         <p className="welcome-rise-3 mt-9 inline-flex items-center gap-1.5 text-sm text-muted">
