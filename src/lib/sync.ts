@@ -20,7 +20,7 @@ export type ReactionEvent = {
 };
 
 // Emojis offered in the reaction bar.
-export const REACTION_EMOJIS = ["❤️", "😂", "😮", "👏", "🔥", "😢", "🎉", "👍"];
+export const REACTION_EMOJIS = ["🤍", "❤️", "😂", "😮", "👏", "🔥", "🎉", "👍"];
 
 export type ChatEvent = {
   type: "chat";

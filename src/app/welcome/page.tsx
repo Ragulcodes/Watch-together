@@ -1,9 +1,9 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { Film, Play, Heart, Popcorn } from "lucide-react";
+import { Film, Play, Popcorn } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Welcome, Roshan Fazila 💛",
+  title: "Welcome, Roshan Fazila 🤍❤️",
   description: "A little movie night, just for you — from Ragul.",
 };
 
@@ -23,7 +23,7 @@ export default function WelcomePage() {
           Welcome,
           <br className="sm:hidden" />{" "}
           <span className="text-accent">Roshan Fazila</span>{" "}
-          <span className="inline-block animate-pulse align-middle">💛</span>
+          <span className="inline-block animate-pulse align-middle">🤍❤️</span>
         </h1>
 
         <p className="welcome-rise-3 mt-6 text-lg leading-relaxed text-muted">
@@ -47,7 +47,7 @@ export default function WelcomePage() {
         </div>
 
         <p className="welcome-rise-3 mt-9 inline-flex items-center gap-1.5 text-sm text-muted">
-          made with <Heart size={14} className="text-accent fill-accent" /> by Ragul, for you
+          made with 🤍❤️ by Ragul, for you
         </p>
       </div>
     </main>
