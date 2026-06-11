@@ -157,3 +157,20 @@ body {
   will-change: transform, opacity;
   filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.4));
 }
+
+/* ---- Welcome page ---- */
+@keyframes welcome-rise {
+  from { opacity: 0; transform: translateY(18px) scale(0.985); }
+  to { opacity: 1; transform: none; }
+}
+.welcome-rise { animation: welcome-rise 0.8s cubic-bezier(0.2, 0.7, 0.3, 1) both; }
+.welcome-rise-2 { animation: welcome-rise 0.8s cubic-bezier(0.2, 0.7, 0.3, 1) 0.15s both; }
+.welcome-rise-3 { animation: welcome-rise 0.8s cubic-bezier(0.2, 0.7, 0.3, 1) 0.3s both; }
+@keyframes soft-glow {
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(124, 92, 255, 0)); }
+  50% { transform: scale(1.08); filter: drop-shadow(0 0 14px rgba(124, 92, 255, 0.5)); }
+}
+.soft-glow { animation: soft-glow 2.8s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .welcome-rise, .welcome-rise-2, .welcome-rise-3, .soft-glow { animation: none; }
+}
