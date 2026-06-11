@@ -17,7 +17,7 @@
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
-  border-radius: 6px;
+  border-radius: 8px;
 }
 
 html, body { color: var(--text); }
@@ -26,7 +26,6 @@ body {
   font-family: -apple-system, "SF Pro Text", "SF Pro Display", Inter, system-ui, "Segoe UI", Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   letter-spacing: -0.01em;
-  /* Near-black base; the ParallaxBackground component paints the colour + motion. */
   background-color: #05060a;
   min-height: 100vh;
 }
@@ -41,7 +40,7 @@ body {
 }
 ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.28); background-clip: content-box; }
 
-/* ---- Frosted glass (clean, flat — depth from blur + soft shadow only) ---- */
+/* ---- Frosted glass ---- */
 .glass {
   background: var(--glass-bg);
   backdrop-filter: blur(24px) saturate(170%);
@@ -56,7 +55,6 @@ body {
   border: 1px solid var(--glass-border);
   box-shadow: 0 16px 50px rgba(0, 0, 0, 0.45), inset 0 1px 0 var(--glass-highlight);
 }
-
 .card {
   border-radius: 20px;
   background: var(--glass-bg);
@@ -66,42 +64,68 @@ body {
   box-shadow: 0 12px 44px rgba(0, 0, 0, 0.4), inset 0 1px 0 var(--glass-highlight);
 }
 
-/* ---- Buttons: clean, flat, Apple-like (no bevels) ---- */
+/* ---- Buttons — Apple-clean: capsule, flat fills, crisp press, no glow ---- */
 .btn {
-  @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium;
-  border-radius: 12px;
-  transition: transform 0.12s ease, box-shadow 0.2s ease, background 0.2s ease,
-    border-color 0.2s ease, filter 0.2s ease;
+  @apply inline-flex items-center justify-center gap-2 text-sm font-medium;
+  padding: 0.5rem 1.1rem;
+  border-radius: 980px;            /* capsule */
+  line-height: 1.2;
+  white-space: nowrap;
+  border: 1px solid transparent;
+  transition: transform 0.16s cubic-bezier(0.2, 0.7, 0.3, 1), background 0.2s ease,
+    border-color 0.2s ease, filter 0.2s ease, opacity 0.2s ease;
   user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
+.btn:active { transform: scale(0.96); }
+
+/* Filled accent */
 .btn-primary {
   color: #fff;
   background: var(--accent);
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  box-shadow: 0 6px 20px rgba(124, 92, 255, 0.40);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
 }
-.btn-primary:hover { filter: brightness(1.08); box-shadow: 0 8px 26px rgba(124, 92, 255, 0.5); }
-.btn-primary:active { transform: translateY(1px) scale(0.99); }
-.btn-primary:disabled { opacity: 0.5; box-shadow: none; }
+.btn-primary:hover { filter: brightness(1.07); }
+.btn-primary:active { filter: brightness(0.93); }
+.btn-primary:disabled { opacity: 0.45; transform: none; filter: none; }
 
+/* Translucent "gray" secondary (Apple vibrancy) */
 .btn-secondary {
   color: #fff;
-  background: var(--glass-bg);
+  background: rgba(255, 255, 255, 0.10);
   backdrop-filter: blur(16px) saturate(150%);
   -webkit-backdrop-filter: blur(16px) saturate(150%);
-  border: 1px solid var(--glass-border);
-  box-shadow: inset 0 1px 0 var(--glass-highlight);
+  border-color: rgba(255, 255, 255, 0.10);
 }
-.btn-secondary:hover { background: var(--glass-bg-strong); border-color: rgba(124, 92, 255, 0.55); }
-.btn-secondary:active { transform: translateY(1px) scale(0.99); }
+.btn-secondary:hover { background: rgba(255, 255, 255, 0.17); }
+.btn-secondary:disabled { opacity: 0.45; transform: none; }
 
-.btn-ghost { color: var(--text-muted); background: transparent; }
-.btn-ghost:hover { color: #fff; background: rgba(255, 255, 255, 0.07); }
+/* Plain text button */
+.btn-ghost {
+  color: var(--text-muted);
+  background: transparent;
+}
+.btn-ghost:hover { color: #fff; background: rgba(255, 255, 255, 0.08); }
 
-/* ---- Input: subtle frosted field ---- */
+/* Circular icon button (control bar / toolbars) */
+.btn-icon {
+  @apply inline-flex items-center justify-center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  transition: transform 0.16s cubic-bezier(0.2, 0.7, 0.3, 1), background 0.2s ease,
+    border-color 0.2s ease, filter 0.2s ease;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-icon:active { transform: scale(0.92); }
+
+/* ---- Input ---- */
 .input {
   @apply w-full px-3 py-2 text-sm;
-  border-radius: 11px;
+  border-radius: 12px;
   color: var(--text);
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--glass-border);
@@ -126,16 +150,4 @@ body {
   animation: reaction-rise 2.6s ease-out forwards;
   will-change: transform, opacity;
   filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.4));
-}
-
-/* ---- Cat companion ---- */
-@keyframes cat-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
-@keyframes cat-blink { 0%, 91%, 100% { transform: scaleY(1); } 95% { transform: scaleY(0.08); } }
-@keyframes cat-tail { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-16deg); } }
-.cat-float { animation: cat-float 4s ease-in-out infinite; }
-.cat-eyes { animation: cat-blink 5.5s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
-.cat-tail { animation: cat-tail 3.2s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100%; }
-.cat-pupil { transition: transform 0.08s ease-out; }
-@media (prefers-reduced-motion: reduce) {
-  .cat-float, .cat-eyes, .cat-tail { animation: none; }
 }

@@ -1,7 +1,6 @@
 "use client";
 import { useCallback, useState } from "react";
 import { useLocalParticipant, useRoomContext } from "@livekit/components-react";
-import { Track } from "livekit-client";
 import { Mic, MicOff, Video, VideoOff, MonitorUp, MonitorOff, MessageSquare, PhoneOff, Settings } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { movieScreenShareOptions } from "@/lib/roomOptions";
@@ -55,35 +54,35 @@ export function Controls({
   return (
     <div className="flex items-center gap-2">
       <IconBtn active={micOn} onClick={toggleMic}
-        on={<Mic size={16} />} off={<MicOff size={16} />} label="Mic" />
+        on={<Mic size={18} />} off={<MicOff size={18} />} label="Mic" />
       <IconBtn active={camOn} onClick={toggleCam}
-        on={<Video size={16} />} off={<VideoOff size={16} />} label="Camera" />
+        on={<Video size={18} />} off={<VideoOff size={18} />} label="Camera" />
       <IconBtn active={shareOn} onClick={toggleShare}
-        on={<MonitorUp size={16} />} off={<MonitorOff size={16} />} label="Share" />
+        on={<MonitorUp size={18} />} off={<MonitorOff size={18} />} label="Share" />
       <button
-        className="btn-secondary"
+        className="btn-icon bg-white/10 text-white hover:bg-white/20"
         onClick={onOpenSettings}
         title="Camera & mic settings"
         aria-label="Open camera and microphone settings"
       >
-        <Settings size={16} />
+        <Settings size={18} />
       </button>
       <button
-        className={`btn-secondary ${chatOpen ? "border-accent/60 text-white" : ""}`}
+        className={`btn-icon text-white ${chatOpen ? "bg-accent" : "bg-white/10 hover:bg-white/20"}`}
         onClick={onToggleChat}
         title="Toggle chat"
         aria-label="Toggle chat panel"
         aria-pressed={chatOpen}
       >
-        <MessageSquare size={16} />
+        <MessageSquare size={18} />
       </button>
       <button
         onClick={leave}
-        className="btn bg-danger/90 hover:bg-danger text-white"
+        className="btn-icon bg-danger text-white hover:brightness-110"
         title="Leave room"
         aria-label="Leave room"
       >
-        <PhoneOff size={16} />
+        <PhoneOff size={18} />
       </button>
     </div>
   );
@@ -104,7 +103,7 @@ function IconBtn({
       title={label}
       aria-label={`${label}: ${active ? "on" : "off"}`}
       aria-pressed={active}
-      className={`btn ${active ? "bg-accent text-white" : "bg-panel2 text-white border border-border hover:border-accent/60"}`}
+      className={`btn-icon text-white ${active ? "bg-accent" : "bg-white/10 hover:bg-white/20"}`}
     >
       {active ? on : off}
     </button>

@@ -4,7 +4,6 @@ import type { Metadata, Viewport } from "next";
 import { Providers } from "@/components/Providers";
 import { PWARegister } from "@/components/PWARegister";
 import { ParallaxBackground } from "@/components/ParallaxBackground";
-import { CatCompanion } from "@/components/CatCompanion";
 
 export const metadata: Metadata = {
   title: "Watch Together",
@@ -25,7 +24,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <ParallaxBackground />
         <Providers>{children}</Providers>
-        <CatCompanion />
         <PWARegister />
       </body>
     </html>
