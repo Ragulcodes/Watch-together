@@ -65,7 +65,10 @@ body {
 }
 
 /* ---- Buttons — Apple-clean: capsule, flat fills, crisp press, no glow ---- */
-.btn {
+.btn,
+.btn-primary,
+.btn-secondary,
+.btn-ghost {
   @apply inline-flex items-center justify-center gap-2 text-sm font-medium;
   padding: 0.5rem 1.1rem;
   border-radius: 980px;            /* capsule */
@@ -77,7 +80,10 @@ body {
   user-select: none;
   -webkit-tap-highlight-color: transparent;
 }
-.btn:active { transform: scale(0.96); }
+.btn:active,
+.btn-primary:active,
+.btn-secondary:active,
+.btn-ghost:active { transform: scale(0.96); }
 
 /* Filled accent */
 .btn-primary {
