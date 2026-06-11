@@ -3,7 +3,7 @@ import { useCallback, useState } from "react";
 import { useLocalParticipant, useRoomContext } from "@livekit/components-react";
 import { Mic, MicOff, Video, VideoOff, MonitorUp, MonitorOff, MessageSquare, PhoneOff, Settings } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { movieScreenShareOptions } from "@/lib/roomOptions";
+import { movieScreenShareOptions, movieScreenSharePublish } from "@/lib/roomOptions";
 
 export function Controls({
   onToggleChat,
@@ -39,6 +39,7 @@ export function Controls({
       await localParticipant.setScreenShareEnabled(
         next,
         next ? movieScreenShareOptions : undefined,
+        next ? movieScreenSharePublish : undefined,
       );
       setShareOn(next);
     } catch {

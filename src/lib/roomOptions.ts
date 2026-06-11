@@ -1,17 +1,17 @@
 import {
   type RoomOptions,
   type ScreenShareCaptureOptions,
+  type TrackPublishOptions,
   VideoPresets,
 } from "livekit-client";
 
 /**
  * High-clarity defaults for the watch-party room.
  *
- * - VP9 codec with an H.264 backup → ~40% better quality-per-bitrate than VP8,
- *   while still serving Safari/older subscribers via the backup encoding.
+ * - VP9 codec with an H.264 backup for cameras (~40% better quality-per-bitrate).
  * - Simulcast layers (360p/720p/1080p) so each viewer auto-receives the best
  *   quality their bandwidth supports — `adaptiveStream` + `dynacast` pause and
- *   downgrade layers nobody is watching, saving CPU/bandwidth for what matters.
+ *   downgrade layers nobody is watching.
  * - 1080p capture default; audio with RED (packet-loss redundancy) + DTX.
  */
 export const roomOptions: RoomOptions = {
@@ -37,21 +37,49 @@ export const roomOptions: RoomOptions = {
     red: true,
     dtx: true,
     videoEncoding: VideoPresets.h1080.encoding,
-    // High-bitrate screen share — this is the movie stream, so clarity matters most.
-    screenShareEncoding: { maxBitrate: 6_000_000, maxFramerate: 30 },
+    // Fallback screen-share encoding (the explicit publish options below win).
+    screenShareEncoding: { maxBitrate: 10_000_000, maxFramerate: 60 },
   },
 };
 
 /**
- * Screen-share capture tuned for watching video together:
- * - `contentHint: "motion"` tells the encoder to favour smooth motion over
- *   per-frame sharpness (correct for movies; use "detail" for slides/code).
- * - `systemAudio: "include"` + `audio: true` pull the movie's soundtrack through.
+ * Screen-share CAPTURE tuned for watching a movie together:
+ * - 1080p at 60fps capture.
+ * - `contentHint: "motion"` → the encoder favours smooth motion (correct for video).
+ * - `audio: true` with all voice-processing OFF → full-fidelity movie soundtrack
+ *   (echo cancellation / noise suppression / auto-gain would mangle music).
+ * - `systemAudio: "include"` pulls system/tab audio through where the browser allows.
+ *
+ * Note: audio capture from screen share is browser/OS dependent — sharing a
+ * Chrome TAB with "share tab audio" works everywhere; sharing a whole screen
+ * only carries audio on Windows/Chrome.
  */
 export const movieScreenShareOptions: ScreenShareCaptureOptions = {
-  audio: true,
+  audio: {
+    echoCancellation: false,
+    noiseSuppression: false,
+    autoGainControl: false,
+  },
   systemAudio: "include",
   contentHint: "motion",
-  resolution: VideoPresets.h1080.resolution,
+  resolution: { width: 1920, height: 1080, frameRate: 60 },
   selfBrowserSurface: "include",
+};
+
+/**
+ * Screen-share PUBLISH options — the fix for the "slideshow" problem:
+ * - `degradationPreference: "maintain-framerate"` → under load, drop a little
+ *   resolution rather than tanking FPS (the default does the opposite, which is
+ *   what made movies look like a slideshow).
+ * - H.264 → hardware-accelerated encode, smooth at 1080p60 (VP9 1080p60 is
+ *   software-encoded and pegs the CPU, causing dropped frames).
+ * - `simulcast: false` → one full-quality layer, so viewers always get 1080p60
+ *   instead of adaptiveStream picking a downscaled layer.
+ * - 10 Mbps / 60fps, high priority.
+ */
+export const movieScreenSharePublish: TrackPublishOptions = {
+  screenShareEncoding: { maxBitrate: 10_000_000, maxFramerate: 60, priority: "high" },
+  degradationPreference: "maintain-framerate",
+  simulcast: false,
+  videoCodec: "h264",
 };
