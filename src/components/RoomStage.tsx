@@ -54,7 +54,7 @@ export function RoomStage(props: {
   return (
     <div className="flex-1 flex min-h-0 relative">
       <div className="flex-1 flex flex-col min-w-0">
-        <div className="px-3 md:px-6 py-3 border-b border-border flex items-center justify-between gap-2 flex-wrap">
+        <div className="px-3 md:px-6 py-3 border-b border-border bg-white/[0.04] backdrop-blur-xl flex items-center justify-between gap-2 flex-wrap">
           <div className="min-w-0">
             <h1 className="text-white font-medium truncate">{props.roomName}</h1>
             <div className="text-xs text-muted flex items-center gap-3">
@@ -109,7 +109,7 @@ export function RoomStage(props: {
             <Reactions />
           </div>
           {/* Participants strip */}
-          <div className="bg-panel border-t border-border">
+          <div className="bg-panel border-t border-border backdrop-blur-xl">
             <VideoStage
               isHost={isHost}
               roomSlug={props.roomSlug}
@@ -130,7 +130,7 @@ export function RoomStage(props: {
 
       {showChat && (
         <aside
-          className="flex flex-col bg-panel border-l border-border z-40
+          className="flex flex-col bg-panel border-l border-border backdrop-blur-xl z-40
                      fixed inset-y-0 right-0 w-full max-w-sm
                      md:static md:inset-auto md:w-80 md:max-w-none md:z-auto"
         >

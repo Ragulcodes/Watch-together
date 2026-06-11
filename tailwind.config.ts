@@ -5,16 +5,18 @@ export default {
   theme: {
     extend: {
       colors: {
-        bg: "#0a0a0f",
-        panel: "#13131a",
-        panel2: "#1c1c26",
-        border: "#2a2a36",
+        bg: "#05060a",
+        // Translucent surfaces — the parallax aurora shows through; add
+        // `backdrop-blur` for the frosted-glass effect.
+        panel: "rgba(255,255,255,0.05)",
+        panel2: "rgba(255,255,255,0.09)",
+        border: "rgba(255,255,255,0.12)",
         accent: "#7c5cff",
         accent2: "#22d3ee",
         danger: "#ef4444",
-        muted: "#8b8b9a",
+        muted: "#9aa0b4",
       },
-      fontFamily: { sans: ["Inter", "system-ui", "sans-serif"] },
+      fontFamily: { sans: ["-apple-system", "SF Pro Text", "Inter", "system-ui", "sans-serif"] },
     },
   },
   plugins: [],

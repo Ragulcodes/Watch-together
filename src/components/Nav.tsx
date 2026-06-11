@@ -6,7 +6,7 @@ import { Film } from "lucide-react";
 export function Nav() {
   const { data: session, status } = useSession();
   return (
-    <header className="sticky top-0 z-30 border-b border-border bg-bg/80 backdrop-blur">
+    <header className="sticky top-0 z-30 border-b border-border bg-bg/55 backdrop-blur-xl">
       <div className="mx-auto max-w-6xl px-4 h-14 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 font-semibold text-white">
           <span className="grid place-items-center w-8 h-8 rounded-md bg-accent/20 text-accent">

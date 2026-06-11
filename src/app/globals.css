@@ -2,49 +2,120 @@
 @tailwind components;
 @tailwind utilities;
 
-:root { color-scheme: dark; }
-
-/* Visible keyboard focus for accessibility (mouse clicks stay ring-free). */
-:focus-visible {
-  outline: 2px solid #7c5cff;
-  outline-offset: 2px;
-  border-radius: 4px;
+:root {
+  color-scheme: dark;
+  --accent: #7c5cff;
+  --accent2: #22d3ee;
+  --text: #eef0f7;
+  --text-muted: #9aa0b4;
+  --glass-bg: rgba(255, 255, 255, 0.06);
+  --glass-bg-strong: rgba(255, 255, 255, 0.11);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-highlight: rgba(255, 255, 255, 0.18);
 }
 
-html, body { background: #0a0a0f; color: #e6e6ee; }
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+html, body { color: var(--text); }
 
 body {
-  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family: -apple-system, "SF Pro Text", "SF Pro Display", Inter, system-ui, "Segoe UI", Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.01em;
+  /* Near-black base; the ParallaxBackground component paints the colour + motion. */
+  background-color: #05060a;
+  min-height: 100vh;
 }
 
-/* Subtle scrollbar */
-::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #2a2a36; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: #3a3a48; }
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.28); background-clip: content-box; }
 
+/* ---- Frosted glass (clean, flat — depth from blur + soft shadow only) ---- */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px) saturate(170%);
+  -webkit-backdrop-filter: blur(24px) saturate(170%);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35), inset 0 1px 0 var(--glass-highlight);
+}
+.glass-strong {
+  background: var(--glass-bg-strong);
+  backdrop-filter: blur(32px) saturate(180%);
+  -webkit-backdrop-filter: blur(32px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.45), inset 0 1px 0 var(--glass-highlight);
+}
+
+.card {
+  border-radius: 20px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px) saturate(170%);
+  -webkit-backdrop-filter: blur(24px) saturate(170%);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 12px 44px rgba(0, 0, 0, 0.4), inset 0 1px 0 var(--glass-highlight);
+}
+
+/* ---- Buttons: clean, flat, Apple-like (no bevels) ---- */
 .btn {
-  @apply inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition;
+  @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium;
+  border-radius: 12px;
+  transition: transform 0.12s ease, box-shadow 0.2s ease, background 0.2s ease,
+    border-color 0.2s ease, filter 0.2s ease;
+  user-select: none;
 }
 .btn-primary {
-  @apply btn bg-accent text-white hover:bg-accent/90 disabled:opacity-50;
+  color: #fff;
+  background: var(--accent);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  box-shadow: 0 6px 20px rgba(124, 92, 255, 0.40);
 }
+.btn-primary:hover { filter: brightness(1.08); box-shadow: 0 8px 26px rgba(124, 92, 255, 0.5); }
+.btn-primary:active { transform: translateY(1px) scale(0.99); }
+.btn-primary:disabled { opacity: 0.5; box-shadow: none; }
+
 .btn-secondary {
-  @apply btn bg-panel2 text-white border border-border hover:border-accent/60;
+  color: #fff;
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  border: 1px solid var(--glass-border);
+  box-shadow: inset 0 1px 0 var(--glass-highlight);
 }
-.btn-ghost {
-  @apply btn text-muted hover:text-white hover:bg-panel2;
-}
+.btn-secondary:hover { background: var(--glass-bg-strong); border-color: rgba(124, 92, 255, 0.55); }
+.btn-secondary:active { transform: translateY(1px) scale(0.99); }
+
+.btn-ghost { color: var(--text-muted); background: transparent; }
+.btn-ghost:hover { color: #fff; background: rgba(255, 255, 255, 0.07); }
+
+/* ---- Input: subtle frosted field ---- */
 .input {
-  @apply w-full rounded-md bg-panel2 border border-border px-3 py-2 text-sm
-         focus:outline-none focus:border-accent placeholder:text-muted;
+  @apply w-full px-3 py-2 text-sm;
+  border-radius: 11px;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
 }
-.card {
-  @apply rounded-xl bg-panel border border-border;
+.input::placeholder { color: #7e8398; }
+.input:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(124, 92, 255, 0.7);
+  box-shadow: 0 0 0 3px rgba(124, 92, 255, 0.22);
 }
 
-/* Floating emoji reactions */
+/* ---- Floating emoji reactions ---- */
 @keyframes reaction-rise {
   0%   { transform: translateY(0) scale(0.6); opacity: 0; }
   15%  { transform: translateY(-10px) scale(1.1); opacity: 1; }
@@ -54,4 +125,17 @@ body {
 .reaction-floater {
   animation: reaction-rise 2.6s ease-out forwards;
   will-change: transform, opacity;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.4));
+}
+
+/* ---- Cat companion ---- */
+@keyframes cat-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+@keyframes cat-blink { 0%, 91%, 100% { transform: scaleY(1); } 95% { transform: scaleY(0.08); } }
+@keyframes cat-tail { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-16deg); } }
+.cat-float { animation: cat-float 4s ease-in-out infinite; }
+.cat-eyes { animation: cat-blink 5.5s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.cat-tail { animation: cat-tail 3.2s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100%; }
+.cat-pupil { transition: transform 0.08s ease-out; }
+@media (prefers-reduced-motion: reduce) {
+  .cat-float, .cat-eyes, .cat-tail { animation: none; }
 }
