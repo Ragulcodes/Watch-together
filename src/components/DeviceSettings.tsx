@@ -1,6 +1,7 @@
 "use client";
 import { useMediaDeviceSelect } from "@livekit/components-react";
-import { X, Camera, Mic, Volume2 } from "lucide-react";
+import { X, Camera, Mic, Volume2, MonitorUp } from "lucide-react";
+import { SHARE_QUALITIES, type ShareQuality } from "@/lib/roomOptions";
 
 function DeviceSelect({
   kind,
@@ -35,25 +36,52 @@ function DeviceSelect({
   );
 }
 
-export function DeviceSettings({ onClose }: { onClose: () => void }) {
+export function DeviceSettings({
+  onClose,
+  shareQuality,
+  setShareQuality,
+}: {
+  onClose: () => void;
+  shareQuality: ShareQuality;
+  setShareQuality: (q: ShareQuality) => void;
+}) {
+  const hint = SHARE_QUALITIES.find((q) => q.id === shareQuality)?.hint;
+
   return (
     <div className="absolute inset-0 z-40 bg-black/70 grid place-items-center p-4">
       <div className="card p-6 w-full max-w-md">
         <div className="flex items-center justify-between">
-          <h3 className="text-white font-medium">Devices</h3>
+          <h3 className="text-white font-medium">Settings</h3>
           <button onClick={onClose} className="btn-ghost p-1" aria-label="Close">
             <X size={18} />
           </button>
         </div>
-        <p className="text-xs text-muted mt-1">
-          Pick your camera, mic, and speakers. Grant browser permission first if
-          the lists are empty.
-        </p>
-        <div className="mt-4 space-y-4">
+
+        <div className="mt-5 space-y-4">
           <DeviceSelect kind="videoinput" icon={<Camera size={14} />} label="Camera" />
           <DeviceSelect kind="audioinput" icon={<Mic size={14} />} label="Microphone" />
           <DeviceSelect kind="audiooutput" icon={<Volume2 size={14} />} label="Speakers" />
+
+          <div className="pt-2 border-t border-border">
+            <label className="flex items-center gap-2 text-sm text-muted mb-1 mt-3">
+              <MonitorUp size={14} /> Screen-share quality
+            </label>
+            <select
+              className="input"
+              value={shareQuality}
+              onChange={(e) => setShareQuality(e.target.value as ShareQuality)}
+            >
+              {SHARE_QUALITIES.map((q) => (
+                <option key={q.id} value={q.id}>
+                  {q.label}
+                </option>
+              ))}
+            </select>
+            {hint && <p className="text-xs text-muted mt-1.5">{hint}</p>}
+            <p className="text-xs text-muted mt-1">Applies the next time you start sharing.</p>
+          </div>
         </div>
+
         <div className="mt-6 flex justify-end">
           <button onClick={onClose} className="btn-primary">Done</button>
         </div>

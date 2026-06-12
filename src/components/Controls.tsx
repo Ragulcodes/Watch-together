@@ -3,16 +3,22 @@ import { useCallback, useState } from "react";
 import { useLocalParticipant, useRoomContext } from "@livekit/components-react";
 import { Mic, MicOff, Video, VideoOff, MonitorUp, MonitorOff, MessageSquare, PhoneOff, Settings } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { movieScreenShareOptions, movieScreenSharePublish } from "@/lib/roomOptions";
+import {
+  screenShareCaptureFor,
+  screenSharePublishFor,
+  type ShareQuality,
+} from "@/lib/roomOptions";
 
 export function Controls({
   onToggleChat,
   chatOpen,
   onOpenSettings,
+  shareQuality,
 }: {
   onToggleChat: () => void;
   chatOpen: boolean;
   onOpenSettings: () => void;
+  shareQuality: ShareQuality;
 }) {
   const router = useRouter();
   const { localParticipant } = useLocalParticipant();
@@ -38,14 +44,14 @@ export function Controls({
     try {
       await localParticipant.setScreenShareEnabled(
         next,
-        next ? movieScreenShareOptions : undefined,
-        next ? movieScreenSharePublish : undefined,
+        next ? screenShareCaptureFor(shareQuality) : undefined,
+        next ? screenSharePublishFor(shareQuality) : undefined,
       );
       setShareOn(next);
     } catch {
       setShareOn(false);
     }
-  }, [shareOn, localParticipant]);
+  }, [shareOn, localParticipant, shareQuality]);
 
   const leave = useCallback(async () => {
     await room.disconnect();

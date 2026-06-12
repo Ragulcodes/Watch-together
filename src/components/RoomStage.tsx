@@ -10,6 +10,8 @@ import { ScreenShareView } from "./ScreenShareView";
 import { DeviceSettings } from "./DeviceSettings";
 import { Reactions } from "./Reactions";
 import { RecordButton } from "./RecordButton";
+import { FocusView } from "./FocusView";
+import type { ShareQuality } from "@/lib/roomOptions";
 import { Crown, Users, X, Link2, Trash2, Check } from "lucide-react";
 
 export function RoomStage(props: {
@@ -29,9 +31,16 @@ export function RoomStage(props: {
   const [showChat, setShowChat] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [shareQuality, setShareQuality] = useState<ShareQuality>("1080p60");
+  const [pinned, setPinned] = useState<string | null>(null);
   const isHost = props.currentUserId === props.ownerId;
   const participants = useParticipants();
   const router = useRouter();
+
+  const togglePin = useCallback(
+    (id: string) => setPinned((p) => (p === id ? null : id)),
+    [],
+  );
 
   const copyInvite = useCallback(async () => {
     try {
@@ -91,6 +100,7 @@ export function RoomStage(props: {
               onToggleChat={() => setShowChat((s) => !s)}
               chatOpen={showChat}
               onOpenSettings={() => setShowSettings(true)}
+              shareQuality={shareQuality}
             />
           </div>
         </div>
@@ -106,6 +116,7 @@ export function RoomStage(props: {
               currentUserId={props.currentUserId}
               initialMedia={props.initialMedia}
             />
+            {pinned && <FocusView identity={pinned} onUnpin={() => setPinned(null)} />}
             <Reactions />
           </div>
           {/* Participants strip */}
@@ -115,6 +126,8 @@ export function RoomStage(props: {
               roomSlug={props.roomSlug}
               ownerId={props.ownerId}
               currentUserId={props.currentUserId}
+              pinnedId={pinned}
+              onPin={togglePin}
             />
           </div>
         </div>
@@ -144,7 +157,13 @@ export function RoomStage(props: {
         </aside>
       )}
 
-      {showSettings && <DeviceSettings onClose={() => setShowSettings(false)} />}
+      {showSettings && (
+        <DeviceSettings
+          onClose={() => setShowSettings(false)}
+          shareQuality={shareQuality}
+          setShareQuality={setShareQuality}
+        />
+      )}
     </div>
   );
 }
