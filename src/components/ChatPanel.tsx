@@ -1,8 +1,9 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useDataChannel, useRoomContext } from "@livekit/components-react";
+import { useRoomContext } from "@livekit/components-react";
 import { Send, X } from "lucide-react";
 import { CHAT_TOPIC, type ChatEvent, decode, encode } from "@/lib/sync";
+import { useRoomData } from "@/lib/useRoomData";
 
 type Msg = {
   id: string;
@@ -49,14 +50,15 @@ export function ChatPanel({
       .catch(() => undefined);
   }, [roomSlug]);
 
-  // Live messages over LiveKit data channel.
-  useDataChannel(CHAT_TOPIC, (msg) => {
-    const ev = decode<ChatEvent>(msg.payload);
+  // Live messages over LiveKit data channel (everyone's messages).
+  useRoomData(CHAT_TOPIC, (payload) => {
+    const ev = decode<ChatEvent>(payload);
     if (ev.type !== "chat") return;
-    setMessages((m) => [
-      ...m,
-      { id: ev.id, body: ev.body, senderId: ev.senderId, senderName: ev.senderName, at: ev.at },
-    ]);
+    setMessages((m) =>
+      m.some((x) => x.id === ev.id)
+        ? m
+        : [...m, { id: ev.id, body: ev.body, senderId: ev.senderId, senderName: ev.senderName, at: ev.at }],
+    );
   });
 
   useEffect(() => {

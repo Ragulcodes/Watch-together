@@ -1,10 +1,7 @@
 "use client";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {
-  useDataChannel,
-  useParticipants,
-  useRoomContext,
-} from "@livekit/components-react";
+import { useParticipants, useRoomContext } from "@livekit/components-react";
+import { useRoomData } from "@/lib/useRoomData";
 import { Link2, RotateCcw, RefreshCw, Crown } from "lucide-react";
 import {
   DRIFT_THRESHOLD_SEC,
@@ -112,8 +109,8 @@ export function SyncedPlayer(props: {
   }, [media.url, props.initialMedia.isPlaying]);
 
   // Listen for sync events from peers.
-  useDataChannel(SYNC_TOPIC, (msg) => {
-    const ev = decode<SyncEvent>(msg.payload);
+  useRoomData(SYNC_TOPIC, (payload) => {
+    const ev = decode<SyncEvent>(payload);
     if (ev.senderId === props.currentUserId) return;
     const v = videoRef.current;
     if (!v) return;

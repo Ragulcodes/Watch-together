@@ -1,6 +1,7 @@
 "use client";
 import { useCallback, useState } from "react";
-import { useDataChannel, useRoomContext } from "@livekit/components-react";
+import { useRoomContext } from "@livekit/components-react";
+import { useRoomData } from "@/lib/useRoomData";
 import {
   REACTION_EMOJIS,
   REACTION_TOPIC,
@@ -32,8 +33,8 @@ export function Reactions() {
     }, 2600);
   }, []);
 
-  useDataChannel(REACTION_TOPIC, (msg) => {
-    const ev = decode<ReactionEvent>(msg.payload);
+  useRoomData(REACTION_TOPIC, (payload) => {
+    const ev = decode<ReactionEvent>(payload);
     if (ev.type === "reaction") spawn(ev.emoji, ev.senderName);
   });
 
