@@ -9,7 +9,15 @@ import {
 } from "@livekit/components-react";
 import { Track, type Participant } from "livekit-client";
 import type { TrackReferenceOrPlaceholder } from "@livekit/components-react";
-import { UserX, MicOff, Pin, PinOff } from "lucide-react";
+import { UserX, MicOff, Pin, PinOff, Maximize2 } from "lucide-react";
+
+type TileSize = "sm" | "md" | "lg";
+const SIZE_DIMS: Record<TileSize, string> = {
+  sm: "w-32 h-20",
+  md: "w-44 h-28",
+  lg: "w-64 h-40",
+};
+const SIZE_ORDER: TileSize[] = ["sm", "md", "lg"];
 
 type HostProps = {
   isHost: boolean;
@@ -20,6 +28,8 @@ type HostProps = {
 type StageProps = HostProps & {
   pinnedId: string | null;
   onPin: (identity: string) => void;
+  size: TileSize;
+  onSize: (s: TileSize) => void;
 };
 
 function Tile({
@@ -27,11 +37,13 @@ function Tile({
   host,
   pinnedId,
   onPin,
+  dims,
 }: {
   trackRef: TrackReferenceOrPlaceholder;
   host: HostProps;
   pinnedId: string | null;
   onPin: (identity: string) => void;
+  dims: string;
 }) {
   const participant = trackRef.participant as Participant;
   const speaking = useIsSpeaking(participant);
@@ -56,7 +68,7 @@ function Tile({
   return (
     <TrackRefContext.Provider value={trackRef}>
       <div
-        className={`group relative w-44 h-28 rounded-lg overflow-hidden bg-black flex-shrink-0 border transition-all ${
+        className={`group relative ${dims} rounded-lg overflow-hidden bg-black flex-shrink-0 border transition-all ${
           isPinned
             ? "border-accent ring-2 ring-accent/70"
             : speaking
@@ -101,14 +113,25 @@ function Tile({
   );
 }
 
-export function VideoStage({ pinnedId, onPin, ...host }: StageProps) {
+export function VideoStage({ pinnedId, onPin, size, onSize, ...host }: StageProps) {
   const tracks = useTracks(
     [{ source: Track.Source.Camera, withPlaceholder: true }],
     { onlySubscribed: false },
   );
+  const nextSize = SIZE_ORDER[(SIZE_ORDER.indexOf(size) + 1) % SIZE_ORDER.length];
 
   return (
-    <div className="flex gap-2 px-4 py-3 overflow-x-auto">
+    <div className="flex items-stretch gap-2 px-4 py-3 overflow-x-auto">
+      {tracks.length > 0 && (
+        <button
+          onClick={() => onSize(nextSize)}
+          title={`Resize videos (${size.toUpperCase()})`}
+          aria-label="Resize participant videos"
+          className="btn-icon bg-white/10 text-white hover:bg-white/20 sticky left-0 z-10 flex-shrink-0 self-center"
+        >
+          <Maximize2 size={16} />
+        </button>
+      )}
       {tracks.length === 0 ? (
         <div className="text-muted text-sm py-6">
           Turn on your camera or mic to join the conversation.
@@ -121,6 +144,7 @@ export function VideoStage({ pinnedId, onPin, ...host }: StageProps) {
             host={host}
             pinnedId={pinnedId}
             onPin={onPin}
+            dims={SIZE_DIMS[size]}
           />
         ))
       )}

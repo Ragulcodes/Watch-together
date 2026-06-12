@@ -12,7 +12,7 @@ import { Reactions } from "./Reactions";
 import { RecordButton } from "./RecordButton";
 import { FocusView } from "./FocusView";
 import type { ShareQuality } from "@/lib/roomOptions";
-import { Crown, Users, X, Link2, Trash2, Check } from "lucide-react";
+import { Crown, Users, Link2, Trash2, Check } from "lucide-react";
 
 export function RoomStage(props: {
   roomSlug: string;
@@ -33,6 +33,7 @@ export function RoomStage(props: {
   const [copied, setCopied] = useState(false);
   const [shareQuality, setShareQuality] = useState<ShareQuality>("1080p60");
   const [pinned, setPinned] = useState<string | null>(null);
+  const [tileSize, setTileSize] = useState<"sm" | "md" | "lg">("md");
   const isHost = props.currentUserId === props.ownerId;
   const participants = useParticipants();
   const router = useRouter();
@@ -128,6 +129,8 @@ export function RoomStage(props: {
               currentUserId={props.currentUserId}
               pinnedId={pinned}
               onPin={togglePin}
+              size={tileSize}
+              onSize={setTileSize}
             />
           </div>
         </div>
@@ -147,13 +150,11 @@ export function RoomStage(props: {
                      fixed inset-y-0 right-0 w-full max-w-sm
                      md:static md:inset-auto md:w-80 md:max-w-none md:z-auto"
         >
-          <div className="md:hidden flex items-center justify-between px-4 py-2 border-b border-border">
-            <span className="text-white font-medium">Chat</span>
-            <button onClick={() => setShowChat(false)} className="btn-ghost p-1" aria-label="Close chat">
-              <X size={18} />
-            </button>
-          </div>
-          <ChatPanel roomSlug={props.roomSlug} currentUserId={props.currentUserId} />
+          <ChatPanel
+            roomSlug={props.roomSlug}
+            currentUserId={props.currentUserId}
+            onClose={() => setShowChat(false)}
+          />
         </aside>
       )}
 

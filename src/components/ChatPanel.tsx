@@ -1,7 +1,7 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useDataChannel, useRoomContext } from "@livekit/components-react";
-import { Send } from "lucide-react";
+import { Send, X } from "lucide-react";
 import { CHAT_TOPIC, type ChatEvent, decode, encode } from "@/lib/sync";
 
 type Msg = {
@@ -15,9 +15,11 @@ type Msg = {
 export function ChatPanel({
   roomSlug,
   currentUserId,
+  onClose,
 }: {
   roomSlug: string;
   currentUserId: string;
+  onClose?: () => void;
 }) {
   const room = useRoomContext();
   const [messages, setMessages] = useState<Msg[]>([]);
@@ -95,8 +97,13 @@ export function ChatPanel({
 
   return (
     <>
-      <div className="px-4 py-3 border-b border-border">
+      <div className="px-4 py-3 border-b border-border flex items-center justify-between">
         <h2 className="text-white font-medium">Chat</h2>
+        {onClose && (
+          <button onClick={onClose} className="btn-ghost p-1" aria-label="Close chat" title="Close chat">
+            <X size={18} />
+          </button>
+        )}
       </div>
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-2 space-y-2">
         {messages.length === 0 ? (
