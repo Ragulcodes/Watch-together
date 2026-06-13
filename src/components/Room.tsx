@@ -136,7 +136,7 @@ export function Room(props: {
       connect
       video={false}
       audio={false}
-      className="flex-1 flex flex-col"
+      className="flex-1 flex flex-col min-h-0"
     >
       <RoomAudioRenderer />
       <RoomStage
