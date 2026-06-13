@@ -11,6 +11,7 @@ import { DeviceSettings } from "./DeviceSettings";
 import { Reactions } from "./Reactions";
 import { RecordButton } from "./RecordButton";
 import { FocusView } from "./FocusView";
+import { Toasts } from "./Toasts";
 import type { ShareQuality } from "@/lib/roomOptions";
 import { Crown, Users, Link2, Trash2, Check } from "lucide-react";
 
@@ -119,6 +120,7 @@ export function RoomStage(props: {
             />
             {pinned && <FocusView identity={pinned} onUnpin={() => setPinned(null)} />}
             <Reactions />
+            <Toasts currentUserId={props.currentUserId} />
           </div>
           {/* Participants strip */}
           <div className="bg-panel border-t border-border backdrop-blur-xl">

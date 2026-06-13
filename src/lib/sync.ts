@@ -10,6 +10,14 @@ export type SyncEvent =
 export const SYNC_TOPIC = "watch-sync";
 export const CHAT_TOPIC = "watch-chat";
 export const REACTION_TOPIC = "watch-reactions";
+export const PRESENCE_TOPIC = "watch-presence";
+
+export type PresenceEvent = {
+  type: "typing";
+  senderId: string;
+  senderName: string;
+  typing: boolean;
+};
 
 export type ReactionEvent = {
   type: "reaction";

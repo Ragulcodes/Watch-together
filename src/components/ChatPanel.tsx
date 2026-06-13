@@ -1,8 +1,15 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRoomContext } from "@livekit/components-react";
-import { Send, X } from "lucide-react";
-import { CHAT_TOPIC, type ChatEvent, decode, encode } from "@/lib/sync";
+import { Send, X, Smile } from "lucide-react";
+import {
+  CHAT_TOPIC,
+  PRESENCE_TOPIC,
+  type ChatEvent,
+  type PresenceEvent,
+  decode,
+  encode,
+} from "@/lib/sync";
 import { useRoomData } from "@/lib/useRoomData";
 
 type Msg = {
@@ -11,6 +18,14 @@ type Msg = {
   senderId: string;
   senderName: string;
   at: number;
+};
+
+const STICKERS = ["😻", "🥳", "🍿", "😂", "❤️", "🤍", "🔥", "👏", "😮", "😢", "🎉", "👍", "🙈", "💯", "✨", "😍"];
+const IMG_RE = /^https?:\/\/\S+\.(?:gif|png|jpe?g|webp)(?:\?\S*)?$/i;
+const isImageUrl = (s: string) => IMG_RE.test(s.trim());
+const isSticker = (s: string) => {
+  const t = s.trim();
+  return t.length <= 6 && /\p{Extended_Pictographic}/u.test(t) && !/[a-z0-9]/i.test(t);
 };
 
 export function ChatPanel({
@@ -26,6 +41,34 @@ export function ChatPanel({
   const [messages, setMessages] = useState<Msg[]>([]);
   const [body, setBody] = useState("");
   const scrollRef = useRef<HTMLDivElement | null>(null);
+  const [typers, setTypers] = useState<Record<string, string>>({});
+  const [showStickers, setShowStickers] = useState(false);
+  const typingTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+  const lastTypingSent = useRef(0);
+
+  const broadcastTyping = useCallback(
+    (typing: boolean) => {
+      const ev: PresenceEvent = {
+        type: "typing",
+        senderId: currentUserId,
+        senderName: room.localParticipant.name ?? "Someone",
+        typing,
+      };
+      room.localParticipant
+        .publishData(encode(ev), { reliable: false, topic: PRESENCE_TOPIC })
+        .catch(() => undefined);
+    },
+    [currentUserId, room],
+  );
+
+  const onBodyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setBody(e.target.value);
+    const now = Date.now();
+    if (now - lastTypingSent.current > 1500) {
+      lastTypingSent.current = now;
+      broadcastTyping(true);
+    }
+  };
 
   // Load history.
   useEffect(() => {
@@ -61,16 +104,37 @@ export function ChatPanel({
     );
   });
 
+  // Typing indicators from others (auto-expire after 4s of silence).
+  useRoomData(PRESENCE_TOPIC, (payload) => {
+    const ev = decode<PresenceEvent>(payload);
+    if (ev.type !== "typing" || ev.senderId === currentUserId) return;
+    clearTimeout(typingTimers.current[ev.senderId]);
+    if (ev.typing) {
+      setTypers((t) => ({ ...t, [ev.senderId]: ev.senderName }));
+      typingTimers.current[ev.senderId] = setTimeout(() => {
+        setTypers((t) => {
+          const n = { ...t };
+          delete n[ev.senderId];
+          return n;
+        });
+      }, 4000);
+    } else {
+      setTypers((t) => {
+        const n = { ...t };
+        delete n[ev.senderId];
+        return n;
+      });
+    }
+  });
+
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages.length]);
 
-  const send = useCallback(
-    async (e: React.FormEvent) => {
-      e.preventDefault();
-      const text = body.trim();
+  const postMessage = useCallback(
+    (raw: string) => {
+      const text = raw.trim();
       if (!text) return;
-      setBody("");
       const id = crypto.randomUUID();
       const senderName = room.localParticipant.name ?? "Me";
       const ev: ChatEvent = {
@@ -81,20 +145,38 @@ export function ChatPanel({
         senderName,
         at: Date.now(),
       };
-      // Optimistic local append.
+      // Optimistic local append + broadcast + persist.
       setMessages((m) => [...m, { id, body: text, senderId: currentUserId, senderName, at: ev.at }]);
-      // Broadcast to peers.
       room.localParticipant
         .publishData(encode(ev), { reliable: true, topic: CHAT_TOPIC })
         .catch(() => undefined);
-      // Persist.
       fetch(`/api/chat/${roomSlug}`, {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ body: text }),
       }).catch(() => undefined);
     },
-    [body, currentUserId, room, roomSlug],
+    [currentUserId, room, roomSlug],
+  );
+
+  const send = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!body.trim()) return;
+      postMessage(body);
+      setBody("");
+      broadcastTyping(false);
+      lastTypingSent.current = 0;
+    },
+    [body, postMessage, broadcastTyping],
+  );
+
+  const sendSticker = useCallback(
+    (emoji: string) => {
+      postMessage(emoji);
+      setShowStickers(false);
+    },
+    [postMessage],
   );
 
   return (
@@ -113,31 +195,81 @@ export function ChatPanel({
             Say hi 👋
           </div>
         ) : (
-          messages.map((m) => (
-            <div
-              key={m.id}
-              className={`max-w-[85%] rounded-lg px-3 py-2 text-sm ${
-                m.senderId === currentUserId
-                  ? "ml-auto bg-accent text-white"
-                  : "bg-panel2 text-white"
-              }`}
-            >
-              {m.senderId !== currentUserId && (
-                <div className="text-[10px] uppercase tracking-wide text-muted mb-0.5">
-                  {m.senderName}
-                </div>
-              )}
-              <div className="whitespace-pre-wrap break-words">{m.body}</div>
-            </div>
-          ))
+          messages.map((m) => {
+            const own = m.senderId === currentUserId;
+            const img = isImageUrl(m.body);
+            const sticker = !img && isSticker(m.body);
+            return (
+              <div key={m.id} className={`max-w-[85%] ${own ? "ml-auto" : ""}`}>
+                {!own && (
+                  <div className="text-[10px] uppercase tracking-wide text-muted mb-0.5">
+                    {m.senderName}
+                  </div>
+                )}
+                {img ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={m.body}
+                    alt="shared gif"
+                    loading="lazy"
+                    className={`rounded-lg max-h-52 max-w-full ${own ? "ml-auto" : ""}`}
+                  />
+                ) : sticker ? (
+                  <div className={`text-5xl leading-none ${own ? "text-right" : ""}`}>{m.body}</div>
+                ) : (
+                  <div
+                    className={`rounded-lg px-3 py-2 text-sm whitespace-pre-wrap break-words ${
+                      own ? "bg-accent text-white" : "bg-panel2 text-white"
+                    }`}
+                  >
+                    {m.body}
+                  </div>
+                )}
+              </div>
+            );
+          })
         )}
       </div>
+      {Object.keys(typers).length > 0 && (
+        <div className="px-4 pb-1 text-xs text-muted italic">
+          {(() => {
+            const names = Object.values(typers);
+            return names.length === 1
+              ? `${names[0]} is typing…`
+              : `${names.slice(0, 2).join(" & ")} are typing…`;
+          })()}
+        </div>
+      )}
+      {showStickers && (
+        <div className="px-3 pb-2 grid grid-cols-8 gap-1">
+          {STICKERS.map((s) => (
+            <button
+              key={s}
+              type="button"
+              onClick={() => sendSticker(s)}
+              className="text-2xl rounded-lg hover:bg-white/10 py-1 transition"
+              aria-label={`Send ${s} sticker`}
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+      )}
       <form onSubmit={send} className="p-3 border-t border-border flex gap-2">
+        <button
+          type="button"
+          onClick={() => setShowStickers((s) => !s)}
+          className={`btn-secondary px-2.5 ${showStickers ? "border-accent/60" : ""}`}
+          aria-label="Stickers"
+          title="Stickers"
+        >
+          <Smile size={16} />
+        </button>
         <input
           className="input"
-          placeholder="Message…"
+          placeholder="Message or paste a GIF link…"
           value={body}
-          onChange={(e) => setBody(e.target.value)}
+          onChange={onBodyChange}
           maxLength={2000}
         />
         <button className="btn-primary" type="submit" aria-label="Send">

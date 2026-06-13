@@ -69,3 +69,14 @@ model Message {
 
   @@index([roomId, createdAt])
 }
+
+// "Movies we've watched together" + total time watched (shown on the welcome page).
+model WatchHistory {
+  id        String   @id @default(cuid())
+  title     String
+  url       String?
+  seconds   Int      @default(0)
+  startedAt DateTime @default(now())
+
+  @@index([startedAt])
+}

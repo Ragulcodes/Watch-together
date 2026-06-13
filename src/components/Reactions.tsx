@@ -22,12 +22,14 @@ let floaterSeq = 0;
 export function Reactions() {
   const room = useRoomContext();
   const [floaters, setFloaters] = useState<Floater[]>([]);
+  const [counts, setCounts] = useState<Record<string, number>>({});
 
   const spawn = useCallback((emoji: string, name: string) => {
     floaterSeq += 1;
     const key = `${emoji}-${floaterSeq}`;
     const left = 10 + ((floaterSeq * 37) % 80); // pseudo-random horizontal spread
     setFloaters((f) => [...f, { key, emoji, left, name }]);
+    setCounts((c) => ({ ...c, [emoji]: (c[emoji] ?? 0) + 1 }));
     setTimeout(() => {
       setFloaters((f) => f.filter((x) => x.key !== key));
     }, 2600);
@@ -70,6 +72,23 @@ export function Reactions() {
           </div>
         ))}
       </div>
+
+      {/* Running reaction tally for the session */}
+      {Object.keys(counts).length > 0 && (
+        <div className="pointer-events-none absolute bottom-16 left-1/2 -translate-x-1/2 z-30 flex gap-1.5">
+          {Object.entries(counts)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 6)
+            .map(([emoji, n]) => (
+              <span
+                key={emoji}
+                className="rounded-full bg-black/55 backdrop-blur px-2 py-0.5 text-xs text-white border border-border"
+              >
+                {emoji} {n}
+              </span>
+            ))}
+        </div>
+      )}
 
       {/* Reaction bar */}
       <div className="pointer-events-auto absolute bottom-3 left-1/2 -translate-x-1/2 z-30

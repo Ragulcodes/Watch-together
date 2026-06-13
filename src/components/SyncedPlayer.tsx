@@ -20,6 +20,17 @@ type InitialMedia = {
   positionAt: string;
 };
 
+// Friendly title from a media URL's filename, for watch history.
+function titleFromUrl(u: string): string {
+  try {
+    const last = decodeURIComponent(new URL(u).pathname.split("/").pop() || "");
+    const name = last.replace(/\.[a-z0-9]+$/i, "").replace(/[._-]+/g, " ").trim();
+    return name || "A movie";
+  } catch {
+    return "A movie";
+  }
+}
+
 export function SyncedPlayer(props: {
   roomSlug: string;
   isHost: boolean; // true only for the actual room owner (can persist via PATCH)
@@ -32,6 +43,7 @@ export function SyncedPlayer(props: {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const suppressNextEvent = useRef(false);
   const wasBuffering = useRef(false);
+  const watchIdRef = useRef<string | null>(null);
   const [media, setMedia] = useState<{ url: string | null; title: string | null }>({
     url: props.initialMedia.url,
     title: props.initialMedia.title,
@@ -164,6 +176,20 @@ export function SyncedPlayer(props: {
     return () => clearInterval(i);
   }, [amEffectiveHost, props.currentUserId, send, requestState]);
 
+  // Accumulate "watched together" time every 30s while actually playing.
+  useEffect(() => {
+    const i = setInterval(() => {
+      const v = videoRef.current;
+      if (!amEffectiveHost || !watchIdRef.current || !v || v.paused) return;
+      fetch("/api/watch", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ action: "tick", id: watchIdRef.current, seconds: 30 }),
+      }).catch(() => undefined);
+    }, 30000);
+    return () => clearInterval(i);
+  }, [amEffectiveHost]);
+
   // Only the effective host broadcasts authoritative transport events.
   const onPlay = () => {
     if (suppressNextEvent.current || !amEffectiveHost) return;
@@ -202,6 +228,18 @@ export function SyncedPlayer(props: {
     setMedia({ url: urlInput, title: null });
     send({ type: "load", mediaUrl: urlInput, senderId: props.currentUserId });
     persistState({ mediaUrl: urlInput, mediaTitle: null, isPlaying: false, positionSec: 0 });
+    // Start a watch-history entry (host only — persistState already gates owner;
+    // any effective host records the title so it shows on the welcome page).
+    fetch("/api/watch", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ action: "start", title: titleFromUrl(urlInput), url: urlInput }),
+    })
+      .then((r) => r.json())
+      .then((d) => {
+        if (d?.id) watchIdRef.current = d.id;
+      })
+      .catch(() => undefined);
     setUrlInput("");
     setShowLoad(false);
   };
