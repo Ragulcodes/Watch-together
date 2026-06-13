@@ -183,7 +183,7 @@ export function ChatPanel({
 
   return (
     <>
-      <div className="px-4 py-3 border-b border-border flex items-center justify-between">
+      <div className="px-4 py-3 border-b border-border flex items-center justify-between shrink-0">
         <h2 className="text-white font-medium">Chat</h2>
         {onClose && (
           <button onClick={onClose} className="btn-ghost p-1" aria-label="Close chat" title="Close chat">
@@ -233,7 +233,7 @@ export function ChatPanel({
         )}
       </div>
       {Object.keys(typers).length > 0 && (
-        <div className="px-4 pb-1 text-xs text-muted italic">
+        <div className="px-4 pb-1 text-xs text-muted italic shrink-0">
           {(() => {
             const names = Object.values(typers);
             return names.length === 1
@@ -243,7 +243,7 @@ export function ChatPanel({
         </div>
       )}
       {showStickers && (
-        <div className="border-t border-border pt-2">
+        <div className="border-t border-border pt-2 shrink-0">
           <div className="px-3 flex gap-1 text-xs">
             {(["emoji", "gifs", "stickers"] as const).map((tab) => (
               <button
@@ -285,7 +285,7 @@ export function ChatPanel({
           )}
         </div>
       )}
-      <form onSubmit={send} className="p-3 border-t border-border flex gap-2">
+      <form onSubmit={send} className="p-3 border-t border-border flex gap-2 shrink-0">
         <button
           type="button"
           onClick={() => setShowStickers((s) => !s)}

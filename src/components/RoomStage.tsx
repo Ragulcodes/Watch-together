@@ -150,7 +150,7 @@ export function RoomStage(props: {
 
       {showChat && (
         <aside
-          className="flex flex-col bg-panel border-l border-border backdrop-blur-xl z-40
+          className="flex flex-col bg-panel border-l border-border backdrop-blur-xl z-40 min-h-0 overflow-hidden
                      fixed inset-y-0 right-0 w-full max-w-sm
                      md:static md:inset-auto md:w-80 md:max-w-none md:z-auto"
         >
