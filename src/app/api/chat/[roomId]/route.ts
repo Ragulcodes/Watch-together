@@ -23,7 +23,12 @@ export async function GET(
   return NextResponse.json({ messages: messages.reverse() });
 }
 
-const postSchema = z.object({ body: z.string().min(1).max(2000) });
+const postSchema = z.object({
+  body: z.string().min(1).max(2000),
+  // Client-supplied id so the DB row, the realtime broadcast, and the optimistic
+  // copy all share one id — lets history polling dedupe cleanly.
+  id: z.string().min(8).max(64).optional(),
+});
 
 export async function POST(
   req: Request,
@@ -53,6 +58,7 @@ export async function POST(
   }
   const msg = await prisma.message.create({
     data: {
+      id: parsed.data.id,
       roomId: room.id,
       userId: session.user.id,
       body: parsed.data.body,

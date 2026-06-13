@@ -29,6 +29,21 @@ const isSticker = (s: string) => {
   return t.length <= 6 && /\p{Extended_Pictographic}/u.test(t) && !/[a-z0-9]/i.test(t);
 };
 
+type ChatRow = {
+  id: string;
+  body: string;
+  userId: string;
+  user: { displayName: string };
+  createdAt: string;
+};
+const mapRow = (m: ChatRow): Msg => ({
+  id: m.id,
+  body: m.body,
+  senderId: m.userId,
+  senderName: m.user.displayName,
+  at: new Date(m.createdAt).getTime(),
+});
+
 export function ChatPanel({
   roomSlug,
   currentUserId,
@@ -47,6 +62,15 @@ export function ChatPanel({
   const [pickerTab, setPickerTab] = useState<"emoji" | "gifs" | "stickers">("emoji");
   const typingTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
   const lastTypingSent = useRef(0);
+
+  // Merge messages by id (dedupes optimistic / live / history into one sorted list).
+  const mergeIn = useCallback((incoming: Msg[]) => {
+    setMessages((prev) => {
+      const map = new Map(prev.map((m) => [m.id, m] as const));
+      for (const m of incoming) map.set(m.id, m);
+      return [...map.values()].sort((a, b) => a.at - b.at);
+    });
+  }, []);
 
   const broadcastTyping = useCallback(
     (typing: boolean) => {
@@ -72,38 +96,32 @@ export function ChatPanel({
     }
   };
 
-  // Load history.
+  // Load history + poll every 2.5s as a safety net so messages stay live even
+  // if a realtime data packet is missed.
   useEffect(() => {
-    fetch(`/api/chat/${roomSlug}`)
-      .then((r) => r.json())
-      .then((data) => {
-        if (Array.isArray(data.messages)) {
-          setMessages(
-            data.messages.map((m: {
-              id: string; body: string; userId: string;
-              user: { displayName: string }; createdAt: string;
-            }) => ({
-              id: m.id,
-              body: m.body,
-              senderId: m.userId,
-              senderName: m.user.displayName,
-              at: new Date(m.createdAt).getTime(),
-            })),
-          );
-        }
-      })
-      .catch(() => undefined);
-  }, [roomSlug]);
+    let active = true;
+    const pull = () =>
+      fetch(`/api/chat/${roomSlug}`)
+        .then((r) => r.json())
+        .then((data) => {
+          if (active && Array.isArray(data.messages)) mergeIn(data.messages.map(mapRow));
+        })
+        .catch(() => undefined);
+    pull();
+    const i = setInterval(pull, 2500);
+    return () => {
+      active = false;
+      clearInterval(i);
+    };
+  }, [roomSlug, mergeIn]);
 
   // Live messages over LiveKit data channel (everyone's messages).
   useRoomData(CHAT_TOPIC, (payload) => {
     const ev = decode<ChatEvent>(payload);
     if (ev.type !== "chat") return;
-    setMessages((m) =>
-      m.some((x) => x.id === ev.id)
-        ? m
-        : [...m, { id: ev.id, body: ev.body, senderId: ev.senderId, senderName: ev.senderName, at: ev.at }],
-    );
+    mergeIn([
+      { id: ev.id, body: ev.body, senderId: ev.senderId, senderName: ev.senderName, at: ev.at },
+    ]);
   });
 
   // Typing indicators from others (auto-expire after 4s of silence).
@@ -147,18 +165,18 @@ export function ChatPanel({
         senderName,
         at: Date.now(),
       };
-      // Optimistic local append + broadcast + persist.
-      setMessages((m) => [...m, { id, body: text, senderId: currentUserId, senderName, at: ev.at }]);
+      // Optimistic local merge + broadcast + persist (same id everywhere).
+      mergeIn([{ id, body: text, senderId: currentUserId, senderName, at: ev.at }]);
       room.localParticipant
         .publishData(encode(ev), { reliable: true, topic: CHAT_TOPIC })
         .catch(() => undefined);
       fetch(`/api/chat/${roomSlug}`, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ body: text }),
+        body: JSON.stringify({ body: text, id }),
       }).catch(() => undefined);
     },
-    [currentUserId, room, roomSlug],
+    [currentUserId, room, roomSlug, mergeIn],
   );
 
   const send = useCallback(
