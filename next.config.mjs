@@ -10,7 +10,7 @@ const csp = [
   "default-src 'self'",
   scriptSrc,
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob:",
+  "img-src 'self' data: blob: https:",
   "media-src 'self' blob: https: http:",
   "connect-src 'self' ws: wss: https:",
   "worker-src 'self' blob:",

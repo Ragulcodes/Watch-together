@@ -4,8 +4,11 @@
 
 :root {
   color-scheme: dark;
-  --accent: #7c5cff;
-  --accent2: #22d3ee;
+  /* Themeable accents (Instagram-style). Default = Violet. */
+  --accent-rgb: 124 92 255;
+  --accent2-rgb: 34 211 238;
+  --accent: rgb(var(--accent-rgb));
+  --accent2: rgb(var(--accent2-rgb));
   --text: #eef0f7;
   --text-muted: #9aa0b4;
   --glass-bg: rgba(255, 255, 255, 0.06);
@@ -13,6 +16,14 @@
   --glass-border: rgba(255, 255, 255, 0.12);
   --glass-highlight: rgba(255, 255, 255, 0.18);
 }
+
+/* Theme palettes — set on <html data-theme="…"> */
+[data-theme="rose"]    { --accent-rgb: 244 63 94;  --accent2-rgb: 251 113 133; }
+[data-theme="sunset"]  { --accent-rgb: 251 146 60; --accent2-rgb: 244 63 94; }
+[data-theme="ocean"]   { --accent-rgb: 56 189 248; --accent2-rgb: 45 212 191; }
+[data-theme="emerald"] { --accent-rgb: 16 185 129; --accent2-rgb: 132 204 22; }
+[data-theme="gold"]    { --accent-rgb: 234 179 8;  --accent2-rgb: 251 146 60; }
+[data-theme="mono"]    { --accent-rgb: 161 161 170; --accent2-rgb: 212 212 216; }
 
 :focus-visible {
   outline: 2px solid var(--accent);
@@ -141,8 +152,8 @@ body {
 .input:focus {
   outline: none;
   background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(124, 92, 255, 0.7);
-  box-shadow: 0 0 0 3px rgba(124, 92, 255, 0.22);
+  border-color: rgb(var(--accent-rgb) / 0.7);
+  box-shadow: 0 0 0 3px rgb(var(--accent-rgb) / 0.22);
 }
 
 /* ---- Floating emoji reactions ---- */
@@ -167,8 +178,8 @@ body {
 .welcome-rise-2 { animation: welcome-rise 0.8s cubic-bezier(0.2, 0.7, 0.3, 1) 0.15s both; }
 .welcome-rise-3 { animation: welcome-rise 0.8s cubic-bezier(0.2, 0.7, 0.3, 1) 0.3s both; }
 @keyframes soft-glow {
-  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(124, 92, 255, 0)); }
-  50% { transform: scale(1.08); filter: drop-shadow(0 0 14px rgba(124, 92, 255, 0.5)); }
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0 rgb(var(--accent-rgb) / 0)); }
+  50% { transform: scale(1.08); filter: drop-shadow(0 0 14px rgb(var(--accent-rgb) / 0.5)); }
 }
 .soft-glow { animation: soft-glow 2.8s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) {

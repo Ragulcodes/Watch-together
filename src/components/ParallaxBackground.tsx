@@ -48,22 +48,22 @@ export function ParallaxBackground() {
       <div
         data-depth="1.0"
         className="absolute -top-40 -left-32 w-[58vw] h-[58vw] rounded-full blur-3xl will-change-transform"
-        style={{ background: "radial-gradient(circle, rgba(124,92,255,0.45), transparent 62%)" }}
+        style={{ background: "radial-gradient(circle, rgb(var(--accent-rgb) / 0.45), transparent 62%)" }}
       />
       <div
         data-depth="0.6"
         className="absolute top-0 right-[-12%] w-[52vw] h-[52vw] rounded-full blur-3xl will-change-transform"
-        style={{ background: "radial-gradient(circle, rgba(34,211,238,0.30), transparent 62%)" }}
+        style={{ background: "radial-gradient(circle, rgb(var(--accent2-rgb) / 0.30), transparent 62%)" }}
       />
       <div
         data-depth="1.4"
         className="absolute bottom-[-18%] left-1/3 w-[48vw] h-[48vw] rounded-full blur-3xl will-change-transform"
-        style={{ background: "radial-gradient(circle, rgba(236,72,153,0.26), transparent 62%)" }}
+        style={{ background: "radial-gradient(circle, rgb(var(--accent2-rgb) / 0.26), transparent 62%)" }}
       />
       <div
         data-depth="0.85"
         className="absolute bottom-[6%] right-[8%] w-[38vw] h-[38vw] rounded-full blur-3xl will-change-transform"
-        style={{ background: "radial-gradient(circle, rgba(124,92,255,0.22), transparent 62%)" }}
+        style={{ background: "radial-gradient(circle, rgb(var(--accent-rgb) / 0.22), transparent 62%)" }}
       />
     </div>
   );

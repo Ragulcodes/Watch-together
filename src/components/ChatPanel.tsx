@@ -11,6 +11,7 @@ import {
   encode,
 } from "@/lib/sync";
 import { useRoomData } from "@/lib/useRoomData";
+import { GifPicker } from "./GifPicker";
 
 type Msg = {
   id: string;
@@ -43,6 +44,7 @@ export function ChatPanel({
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const [typers, setTypers] = useState<Record<string, string>>({});
   const [showStickers, setShowStickers] = useState(false);
+  const [pickerTab, setPickerTab] = useState<"emoji" | "gifs" | "stickers">("emoji");
   const typingTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
   const lastTypingSent = useRef(0);
 
@@ -241,18 +243,46 @@ export function ChatPanel({
         </div>
       )}
       {showStickers && (
-        <div className="px-3 pb-2 grid grid-cols-8 gap-1">
-          {STICKERS.map((s) => (
-            <button
-              key={s}
-              type="button"
-              onClick={() => sendSticker(s)}
-              className="text-2xl rounded-lg hover:bg-white/10 py-1 transition"
-              aria-label={`Send ${s} sticker`}
-            >
-              {s}
-            </button>
-          ))}
+        <div className="border-t border-border pt-2">
+          <div className="px-3 flex gap-1 text-xs">
+            {(["emoji", "gifs", "stickers"] as const).map((tab) => (
+              <button
+                key={tab}
+                type="button"
+                onClick={() => setPickerTab(tab)}
+                className={`px-2.5 py-1 rounded-full capitalize transition ${
+                  pickerTab === tab ? "bg-accent text-white" : "text-muted hover:text-white"
+                }`}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
+          {pickerTab === "emoji" ? (
+            <div className="px-3 pt-2 grid grid-cols-8 gap-1">
+              {STICKERS.map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => sendSticker(s)}
+                  className="text-2xl rounded-lg hover:bg-white/10 py-1 transition"
+                  aria-label={`Send ${s} sticker`}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="pt-2">
+              <GifPicker
+                type={pickerTab === "gifs" ? "gifs" : "stickers"}
+                onPick={(url) => {
+                  postMessage(url);
+                  setShowStickers(false);
+                }}
+              />
+            </div>
+          )}
         </div>
       )}
       <form onSubmit={send} className="p-3 border-t border-border flex gap-2">

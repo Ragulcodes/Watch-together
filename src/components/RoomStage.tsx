@@ -12,6 +12,7 @@ import { Reactions } from "./Reactions";
 import { RecordButton } from "./RecordButton";
 import { FocusView } from "./FocusView";
 import { Toasts } from "./Toasts";
+import { ThemeSwitcher } from "./ThemeSwitcher";
 import type { ShareQuality } from "@/lib/roomOptions";
 import { Crown, Users, Link2, Trash2, Check } from "lucide-react";
 
@@ -78,6 +79,7 @@ export function RoomStage(props: {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <ThemeSwitcher />
             <button
               onClick={copyInvite}
               className="btn-secondary"

@@ -22,6 +22,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body>
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{var t=localStorage.getItem('wt-theme');if(t&&t!=='violet')document.documentElement.setAttribute('data-theme',t);}catch(e){}",
+          }}
+        />
         <ParallaxBackground />
         <Providers>{children}</Providers>
         <PWARegister />

@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { Film } from "lucide-react";
+import { ThemeSwitcher } from "./ThemeSwitcher";
 
 export function Nav() {
   const { data: session, status } = useSession();
@@ -16,6 +17,7 @@ export function Nav() {
         </Link>
         <nav className="flex items-center gap-2 text-sm">
           <Link href="/rooms" className="btn-ghost">Rooms</Link>
+          <ThemeSwitcher />
           {status === "authenticated" ? (
             <>
               <span className="text-muted hidden sm:inline">
