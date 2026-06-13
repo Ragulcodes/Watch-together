@@ -65,7 +65,7 @@ export function RoomStage(props: {
 
   return (
     <div className="flex-1 flex min-h-0 relative">
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 min-h-0">
         <div className="px-3 md:px-6 py-3 border-b border-border bg-white/[0.04] backdrop-blur-xl flex items-center justify-between gap-2 flex-wrap">
           <div className="min-w-0">
             <h1 className="text-white font-medium truncate">{props.roomName}</h1>

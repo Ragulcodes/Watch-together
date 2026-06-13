@@ -29,7 +29,7 @@ export default async function RoomPage({
     );
   }
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="h-[100dvh] flex flex-col overflow-hidden">
       <Nav />
       <Room
         roomSlug={room.slug}

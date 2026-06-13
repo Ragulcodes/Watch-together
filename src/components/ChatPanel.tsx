@@ -191,7 +191,7 @@ export function ChatPanel({
           </button>
         )}
       </div>
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-2 space-y-2">
+      <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto px-3 py-2 space-y-2">
         {messages.length === 0 ? (
           <div className="text-muted text-sm text-center py-10">
             Say hi 👋
